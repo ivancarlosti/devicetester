@@ -2,15 +2,15 @@
 A simple and useful webcam, microphone and audio output tester.
 
 <!-- buttons -->
-[![Stars](https://img.shields.io/github/stars/ivancarlosti/minifluxreader?label=⭐%20Stars&color=gold&style=flat)](https://github.com/ivancarlosti/minifluxreader/stargazers)
-[![Watchers](https://img.shields.io/github/watchers/ivancarlosti/minifluxreader?label=Watchers&style=flat&color=red)](https://github.com/sponsors/ivancarlosti)
-[![Forks](https://img.shields.io/github/forks/ivancarlosti/minifluxreader?label=Forks&style=flat&color=ff69b4)](https://github.com/sponsors/ivancarlosti)
-[![GitHub last commit](https://img.shields.io/github/last-commit/ivancarlosti/minifluxreader?label=Last%20Commit)](https://github.com/ivancarlosti/minifluxreader/commits)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ivancarlosti/minifluxreader?label=Activity)](https://github.com/ivancarlosti/minifluxreader/pulse)  
-[![GitHub Issues](https://img.shields.io/github/issues/ivancarlosti/minifluxreader?label=Issues&color=orange)](https://github.com/ivancarlosti/minifluxreader/issues)
-[![License](https://img.shields.io/github/license/ivancarlosti/minifluxreader?label=License)](LICENSE)
-[![Security](https://img.shields.io/badge/Security-View%20Here-purple)](https://github.com/ivancarlosti/minifluxreader/security)
-[![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-2.1-4baaaa)](https://github.com/ivancarlosti/minifluxreader?tab=coc-ov-file)
+[![Stars](https://img.shields.io/github/stars/ivancarlosti/devicetester?label=⭐%20Stars&color=gold&style=flat)](https://github.com/ivancarlosti/devicetester/stargazers)
+[![Watchers](https://img.shields.io/github/watchers/ivancarlosti/devicetester?label=Watchers&style=flat&color=red)](https://github.com/sponsors/ivancarlosti)
+[![Forks](https://img.shields.io/github/forks/ivancarlosti/devicetester?label=Forks&style=flat&color=ff69b4)](https://github.com/sponsors/ivancarlosti)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ivancarlosti/devicetester?label=Last%20Commit)](https://github.com/ivancarlosti/devicetester/commits)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ivancarlosti/devicetester?label=Activity)](https://github.com/ivancarlosti/devicetester/pulse)  
+[![GitHub Issues](https://img.shields.io/github/issues/ivancarlosti/devicetester?label=Issues&color=orange)](https://github.com/ivancarlosti/devicetester/issues)
+[![License](https://img.shields.io/github/license/ivancarlosti/devicetester?label=License)](LICENSE)
+[![Security](https://img.shields.io/badge/Security-View%20Here-purple)](https://github.com/ivancarlosti/devicetester/security)
+[![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-2.1-4baaaa)](https://github.com/ivancarlosti/devicetester?tab=coc-ov-file)
 <!-- endbuttons -->
 
 ## Notes
