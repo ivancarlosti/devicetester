@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ICC - Teste de dispositivos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0 auto;
+      padding: 10px;
+      max-width: 480px;
+      background-color: #f4f4f4;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #004080;
+    }
+    .test-section {
+      background-color: #fff;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    select, textarea {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      margin-top: 5px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 10px;
+      margin-right: 5px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button.stop {
+      background-color: #dc3545;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button.stop:hover {
+      background-color: #b52a37;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    video {
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    #mic-level, #speaker-level {
+      width: 100%;
+      height: 10px;
+      background: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    #mic-bar {
+      height: 10px;
+      background: #28a745;
+      width: 0%;
+      transition: width 0.2s;
+    }
+    #speaker-bar {
+      height: 10px;
+      background: #ffc107;
+      width: 0%;
+      transition: width 0.2s;
+    }
+    .geo-label, .isp-label {
+      margin-top:2px;
+      font-size: 0.98em;
+      color: #555;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+<h1>ICC - Teste de dispositivos</h1>
+
+<!-- Rede -->
+<div class="test-section">
+  <h2>Informações de Rede e Navegador</h2>
+  <p><strong>IPv4:</strong> <span id="ipv4">Detectando...</span></p>
+  <p class="geo-label" id="geo-ipv4"></p>
+  <p class="isp-label" id="isp-label-ipv4"></p>
+  <p><strong>IPv6:</strong> <span id="ipv6">Detectando...</span></p>
+  <p class="geo-label" id="geo-ipv6"></p>
+  <p class="isp-label" id="isp-label-ipv6"></p>
+  <label>Agente do Navegador:</label>
+  <textarea id="user-agent" rows="3" readonly></textarea>
+</div>
+
+<!-- Webcam -->
+<div class="test-section">
+  <h2>Teste de webcam</h2>
+  <label for="webcam-select">Escolha a webcam:</label>
+  <select id="webcam-select"></select>
+  <button onclick="startWebcam()">Iniciar webcam</button>
+  <button onclick="stopWebcam()" class="stop">Parar webcam</button>
+  <video id="webcam" autoplay playsinline></video>
+  <p id="webcam-status">Status: Não testado</p>
+</div>
+
+<!-- Microfone -->
+<div class="test-section">
+  <h2>Teste de microfone</h2>
+  <label for="mic-select">Escolha o microfone:</label>
+  <select id="mic-select"></select>
+  <button onclick="startMic()">Iniciar microfone</button>
+  <button onclick="stopMic()" class="stop">Parar microfone</button>
+  <button onclick="recordMicFor10s()">Gravar 10s e Reproduzir</button>
+  <div id="mic-level"><div id="mic-bar"></div></div>
+  <p id="mic-status">Status: Não testado</p>
+  <audio id="mic-playback" controls style="margin-top:10px; display:none;"></audio>
+</div>
+
+<!-- Saída de som -->
+<div class="test-section">
+  <h2>Teste de saída de som</h2>
+  <label for="spk-select">Escolha o alto-falante:</label>
+  <select id="spk-select"></select>
+  <audio id="audio-test" src="test-sound.mp3" preload="auto"></audio>
+  <button id="playBtn" onclick="playSound()">Reproduzir música</button>
+  <button onclick="stopSound()" class="stop">Parar música</button>
+  <div id="speaker-level"><div id="speaker-bar"></div></div>
+  <label>Você ouviu o som?</label>
+  <select id="speaker-result">
+    <option value="">Selecione</option>
+    <option value="sim">Sim</option>
+    <option value="nao">Não</option>
+  </select>
+</div>
+
+<script>
+  document.getElementById("user-agent").value = navigator.userAgent;
+  const webcamSelect = document.getElementById("webcam-select");
+  const micSelect = document.getElementById("mic-select");
+  const spkSelect = document.getElementById("spk-select");
+  const video = document.getElementById("webcam");
+  const micBar = document.getElementById("mic-bar");
+  const speakerBar = document.getElementById("speaker-bar");
+  const playBtn = document.getElementById("playBtn");
+  const audio = document.getElementById("audio-test");
+  const micPlayback = document.getElementById("mic-playback");
+
+  let webcamStream = null;
+  let micStream = null;
+  let micAudioContext = null;
+  let micProcessor = null;
+  let speakerAudioContext = null;
+  let speakerAnalyser = null;
+  let speakerProcessor = null;
+  let speakerSource = null;
+  let micRecorder = null;
+  let recordedChunks = [];
+
+  function listDevices() {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      webcamSelect.innerHTML = "";
+      micSelect.innerHTML = "";
+      spkSelect.innerHTML = "";
+      devices.forEach(device => {
+        const option = document.createElement("option");
+        option.value = device.deviceId;
+        option.text = device.label || "Dispositivo não identificado";
+        if (device.kind === "videoinput") webcamSelect.appendChild(option.cloneNode(true));
+        if (device.kind === "audioinput") micSelect.appendChild(option.cloneNode(true));
+        if (device.kind === "audiooutput" && typeof spkSelect.setSinkId === "function")
+          spkSelect.appendChild(option.cloneNode(true));
+      });
+      if (spkSelect.options.length === 0) {
+        let option = document.createElement("option");
+        option.value = "";
+        option.text = "Sem opção de seleção – saída padrão";
+        spkSelect.appendChild(option);
+      }
+    });
+  }
+
+  function startWebcam() {
+    stopWebcam();
+    const deviceId = webcamSelect.value;
+    const constraints = { video: { deviceId: deviceId ? { exact: deviceId } : undefined } };
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        webcamStream = stream;
+        video.srcObject = stream;
+        document.getElementById("webcam-status").textContent = "Webcam funcionando!";
+      })
+      .catch(() => {
+        document.getElementById("webcam-status").textContent = "Erro ao acessar a webcam.";
+      });
+  }
+
+  function stopWebcam() {
+    if (webcamStream) {
+      webcamStream.getTracks().forEach(track => track.stop());
+      webcamStream = null;
+      video.srcObject = null;
+      document.getElementById("webcam-status").textContent = "Webcam parada.";
+    }
+  }
+
+  function startMic() {
+    stopMic();
+    const deviceId = micSelect.value;
+    const constraints = { audio: deviceId ? { deviceId: { exact: deviceId } } : true };
+    navigator.mediaDevices.getUserMedia({ audio: constraints.audio })
+      .then(stream => {
+        micStream = stream;
+        micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = micAudioContext.createMediaStreamSource(stream);
+        const analyser = micAudioContext.createAnalyser();
+        micProcessor = micAudioContext.createScriptProcessor(1024, 1, 1);
+        source.connect(analyser);
+        analyser.connect(micProcessor);
+        micProcessor.connect(micAudioContext.destination);
+        micProcessor.onaudioprocess = () => {
+          let data = new Uint8Array(analyser.frequencyBinCount);
+          analyser.getByteFrequencyData(data);
+          let avg = data.reduce((a, b) => a + b) / data.length;
+          micBar.style.width = Math.min(100, avg) + "%";
+          if (avg > 10)
+            document.getElementById("mic-status").textContent = "Microfone funcionando!";
+        };
+        document.getElementById("mic-status").textContent = "Microfone capturando...";
+      })
+      .catch(() => {
+        document.getElementById("mic-status").textContent = "Erro ao acessar o microfone.";
+      });
+  }
+
+  function stopMic() {
+    if (micProcessor) micProcessor.disconnect();
+    if (micAudioContext) micAudioContext.close();
+    if (micStream) micStream.getTracks().forEach(track => track.stop());
+    micProcessor = null;
+    micAudioContext = null;
+    micStream = null;
+    micBar.style.width = "0%";
+    document.getElementById("mic-status").textContent = "Microfone parado.";
+  }
+
+  // --- New: Record 10s mic and playback ---
+  function recordMicFor10s() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        micRecorder = new MediaRecorder(stream);
+        recordedChunks = [];
+
+        micRecorder.ondataavailable = e => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        micRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          const url = URL.createObjectURL(blob);
+          micPlayback.src = url;
+          micPlayback.style.display = "block";
+          micPlayback.play();
+        };
+
+        micRecorder.start();
+        document.getElementById("mic-status").textContent = "Gravando 10s...";
+
+        setTimeout(() => {
+          micRecorder.stop();
+          stream.getTracks().forEach(track => track.stop());
+          document.getElementById("mic-status").textContent = "Reprodução da gravação.";
+        }, 10000);
+      })
+      .catch(err => {
+        document.getElementById("mic-status").textContent = "Erro ao gravar: " + err;
+      });
+  }
+
+  // --- Áudio de saída ---
+  function setupSpeakerAnalyzer() {
+    if (!speakerAudioContext) {
+      speakerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      speakerSource = speakerAudioContext.createMediaElementSource(audio);
+      speakerAnalyser = speakerAudioContext.createAnalyser();
+      speakerProcessor = speakerAudioContext.createScriptProcessor(1024, 1, 1);
+      speakerSource.connect(speakerAnalyser);
+      speakerAnalyser.connect(speakerProcessor);
+      speakerProcessor.connect(speakerAudioContext.destination);
+      speakerSource.connect(speakerAudioContext.destination);
+      speakerProcessor.onaudioprocess = () => {
+        let data = new Uint8Array(speakerAnalyser.frequencyBinCount);
+        speakerAnalyser.getByteFrequencyData(data);
+        let avg = data.reduce((a, b) => a + b) / data.length;
+        speakerBar.style.width = Math.min(100, avg) + "%";
+      };
+    }
+  }
+
+  function playSound() {
+    playBtn.disabled = true;
+    setupSpeakerAnalyzer();
+    if (speakerAudioContext && speakerAudioContext.state === "suspended") {
+      speakerAudioContext.resume().then(() => playAudio());
+    } else {
+      playAudio();
+    }
+    function playAudio() {
+      const outputId = spkSelect.value;
+      playBtn.disabled = false;
+      if (typeof audio.setSinkId === "function" && outputId) {
+        audio.setSinkId(outputId).then(() => audio.play()).catch(() => audio.play());
+      } else {
+        audio.play();
+      }
+    }
+  }
+
+  function stopSound() {
+    audio.pause();
+    audio.currentTime = 0;
+    speakerBar.style.width = "0%";
+    if (speakerAudioContext && speakerAudioContext.state !== "closed") {
+      speakerAudioContext.suspend();
+    }
+  }
+
+  // --- IP/ISP info ---
+  function getIPv4AndISP() {
+    fetch("https://ipwhois.app/json/?lang=pt")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("ipv4").textContent = data.ip || "Indisponível";
+        let geo = [];
+        if (data.city) geo.push(data.city);
+        if (data.region) geo.push(data.region);
+        if (data.country) geo.push(data.country);
+        document.getElementById("geo-ipv4").textContent = geo.length ? "Localização: " + geo.join(", ") : "";
+        document.getElementById("isp-label-ipv4").textContent = data.isp ? "Provedor (ISP): " + decodeURIComponent(escape(data.isp)) : "";
+      })
+      .catch(() => {
+        document.getElementById("ipv4").textContent = "Indisponível";
+        document.getElementById("geo-ipv4").textContent = "";
+        document.getElementById("isp-label-ipv4").textContent = "";
+      });
+  }
+
+  function getIPv6AndISP() {
+    fetch("https://api64.ipify.org?format=json")
+      .then(res => res.json())
+      .then(ip => {
+        if (ip.ip && ip.ip.includes(":")) {
+          document.getElementById("ipv6").textContent = ip.ip;
+          return fetch(`https://ipwhois.app/json/${ip.ip}?lang=pt`);
+        } else {
+          throw new Error("Sem IPv6");
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        let geo = [];
+        if (data.city) geo.push(data.city);
+        if (data.region) geo.push(data.region);
+        if (data.country) geo.push(data.country);
+        document.getElementById("geo-ipv6").textContent = geo.length ? "Localização: " + geo.join(", ") : "";
+        document.getElementById("isp-label-ipv6").textContent = data.isp ? "Provedor (ISP): " + decodeURIComponent(escape(data.isp)) : "";
+      })
+      .catch(() => {
+        document.getElementById("ipv6").textContent = "Indisponível";
+        document.getElementById("geo-ipv6").textContent = "";
+        document.getElementById("isp-label-ipv6").textContent = "";
+      });
+  }
+
+  window.onload = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        stream.getTracks().forEach(t => t.stop());
+        listDevices();
+      })
+      .catch(() => listDevices());
+    getIPv4AndISP();
+    getIPv6AndISP();
+  };
+
+  navigator.mediaDevices.addEventListener("devicechange", listDevices);
+  audio.addEventListener("ended", () => {
+    speakerBar.style.width = "0%";
+  });
+</script>
+</body>
+</html>
