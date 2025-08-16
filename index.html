@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Teste de dispositivos</title>
+  <title>ICC - Teste de dispositivos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -87,6 +87,11 @@
       width: 0%;
       transition: width 0.2s;
     }
+    #mic-playback {
+      margin-top: 10px;
+      display: none;
+      width: 100%;
+    }
     .geo-label, .isp-label {
       margin-top:2px;
       font-size: 0.98em;
@@ -132,7 +137,7 @@
   <button onclick="recordMicFor10s()">Gravar 10s e Reproduzir</button>
   <div id="mic-level"><div id="mic-bar"></div></div>
   <p id="mic-status">Status: Não testado</p>
-  <audio id="mic-playback" controls style="margin-top:10px; display:none;"></audio>
+  <audio id="mic-playback" controls></audio>
 </div>
 
 <!-- Saída de som -->
@@ -147,7 +152,10 @@
 </div>
 
 <script>
+  // Populate user agent
   document.getElementById("user-agent").value = navigator.userAgent;
+
+  // Elements
   const webcamSelect = document.getElementById("webcam-select");
   const micSelect = document.getElementById("mic-select");
   const spkSelect = document.getElementById("spk-select");
@@ -158,34 +166,92 @@
   const audio = document.getElementById("audio-test");
   const micPlayback = document.getElementById("mic-playback");
 
+  // State
   let webcamStream = null;
   let micStream = null;
+
+  // Live mic monitor
   let micAudioContext = null;
-  let micProcessor = null;
+  let micAnalyser = null;
+  let micWorkletNode = null;
+
+  // Speaker analyzer
   let speakerAudioContext = null;
   let speakerAnalyser = null;
   let speakerProcessor = null;
   let speakerSource = null;
+
+  // Recorder
   let micRecorder = null;
   let recordedChunks = [];
-  let recordAnalyser = null;
-  let recordProcessor = null;
-  let recordAudioContext = null;
 
+  // Recording-time monitor
+  let recordAudioContext = null;
+  let recordAnalyser = null;
+  let recordWorkletNode = null;
+
+  // One-time AudioWorklet loader promise (shared)
+  let workletLoaded = null;
+  function getLevelWorkletURL() {
+    // Inline AudioWorklet processor as a Blob -> ObjectURL
+    const code = `
+      class LevelMeterProcessor extends AudioWorkletProcessor {
+        process(inputs) {
+          const input = inputs[0];
+          if (input && input[0]) {
+            const ch = input[0];
+            let sum = 0;
+            for (let i = 0; i < ch.length; i++) {
+              sum += Math.abs(ch[i]);
+            }
+            const avg = ch.length ? sum / ch.length : 0;
+            // Send normalized 0..1 level
+            this.port.postMessage(avg);
+          }
+          return true;
+        }
+      }
+      registerProcessor('level-meter', LevelMeterProcessor);
+    `;
+    const blob = new Blob([code], { type: 'application/javascript' });
+    return URL.createObjectURL(blob);
+  }
+  async function ensureWorklet(ac) {
+    if (!ac.audioWorklet) return; // Safari 14+ / modern browsers supported
+    if (!workletLoaded) {
+      // Each context needs to addModule separately
+      workletLoaded = ac.audioWorklet.addModule(getLevelWorkletURL()).catch(e => {
+        // If it fails, reset so another context can retry
+        workletLoaded = null;
+        throw e;
+      });
+    } else {
+      // If previously set for a different context, still need to add for this context
+      // So don't rely on shared promise; add per context:
+      await ac.audioWorklet.addModule(getLevelWorkletURL());
+      return;
+    }
+    await workletLoaded;
+  }
+
+  // Device listing
   function listDevices() {
     navigator.mediaDevices.enumerateDevices().then(devices => {
       webcamSelect.innerHTML = "";
       micSelect.innerHTML = "";
       spkSelect.innerHTML = "";
+
       devices.forEach(device => {
         const option = document.createElement("option");
         option.value = device.deviceId;
         option.text = device.label || "Dispositivo não identificado";
+
         if (device.kind === "videoinput") webcamSelect.appendChild(option.cloneNode(true));
         if (device.kind === "audioinput") micSelect.appendChild(option.cloneNode(true));
         if (device.kind === "audiooutput" && typeof spkSelect.setSinkId === "function")
           spkSelect.appendChild(option.cloneNode(true));
       });
+
       if (spkSelect.options.length === 0) {
         let option = document.createElement("option");
         option.value = "";
@@ -195,6 +261,7 @@
     });
   }
 
+  // Webcam
   function startWebcam() {
     stopWebcam();
     const deviceId = webcamSelect.value;
@@ -209,7 +276,6 @@
         document.getElementById("webcam-status").textContent = "Erro ao acessar a webcam.";
       });
   }
-
   function stopWebcam() {
     if (webcamStream) {
       webcamStream.getTracks().forEach(track => track.stop());
@@ -219,116 +285,134 @@
     }
   }
 
-  function startMic() {
+  // Live mic monitor with AudioWorklet
+  async function startMic() {
     stopMic();
     const deviceId = micSelect.value;
     const constraints = { audio: deviceId ? { deviceId: { exact: deviceId } } : true };
-    navigator.mediaDevices.getUserMedia({ audio: constraints.audio })
-      .then(stream => {
-        micStream = stream;
-        micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = micAudioContext.createMediaStreamSource(stream);
-        const analyser = micAudioContext.createAnalyser();
-        micProcessor = micAudioContext.createScriptProcessor(1024, 1, 1);
-        source.connect(analyser);
-        analyser.connect(micProcessor);
-        micProcessor.connect(micAudioContext.destination);
-        micProcessor.onaudioprocess = () => {
-          let data = new Uint8Array(analyser.frequencyBinCount);
-          analyser.getByteFrequencyData(data);
-          let avg = data.reduce((a, b) => a + b) / data.length;
-          micBar.style.width = Math.min(100, avg) + "%";
-          if (avg > 10)
-            document.getElementById("mic-status").textContent = "Microfone funcionando!";
-        };
-        document.getElementById("mic-status").textContent = "Microfone capturando...";
-      })
-      .catch(() => {
-        document.getElementById("mic-status").textContent = "Erro ao acessar o microfone.";
-      });
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: constraints.audio });
+      micStream = stream;
+
+      micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      await ensureWorklet(micAudioContext);
+
+      const source = micAudioContext.createMediaStreamSource(stream);
+      micAnalyser = micAudioContext.createAnalyser();
+
+      micWorkletNode = new AudioWorkletNode(micAudioContext, 'level-meter');
+      micWorkletNode.port.onmessage = (e) => {
+        // e.data is 0..1 average absolute amplitude
+        const pct = Math.min(100, Math.round(e.data * 100));
+        micBar.style.width = pct + "%";
+        if (pct > 10) document.getElementById("mic-status").textContent = "Microfone funcionando!";
+      };
+
+      source.connect(micAnalyser);
+      // Send audio through worklet for level computation
+      source.connect(micWorkletNode);
+      // Also connect to destination at low volume if you want sidetone; we avoid echo:
+      // micWorkletNode.connect(micAudioContext.destination); // not necessary
+
+      document.getElementById("mic-status").textContent = "Microfone capturando...";
+    } catch (err) {
+      document.getElementById("mic-status").textContent = "Erro ao acessar o microfone.";
+    }
   }
 
   function stopMic() {
-    if (micProcessor) micProcessor.disconnect();
-    if (micAudioContext) micAudioContext.close();
-    if (micStream) micStream.getTracks().forEach(track => track.stop());
-    micProcessor = null;
+    if (micWorkletNode) {
+      try { micWorkletNode.disconnect(); } catch {}
+    }
+    if (micAnalyser) {
+      try { micAnalyser.disconnect(); } catch {}
+    }
+    if (micAudioContext) {
+      try { micAudioContext.close(); } catch {}
+    }
+    if (micStream) {
+      micStream.getTracks().forEach(track => track.stop());
+    }
+    micWorkletNode = null;
+    micAnalyser = null;
     micAudioContext = null;
     micStream = null;
     micBar.style.width = "0%";
     document.getElementById("mic-status").textContent = "Microfone parado.";
   }
 
-  // --- Record 10s mic + update mic-bar during recording ---
-  function recordMicFor10s() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        micRecorder = new MediaRecorder(stream);
-        recordedChunks = [];
-        
-        // Setup analyser for mic bar during recording
-        recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = recordAudioContext.createMediaStreamSource(stream);
-        recordAnalyser = recordAudioContext.createAnalyser();
-        recordProcessor = recordAudioContext.createScriptProcessor(1024, 1, 1);
-        source.connect(recordAnalyser);
-        recordAnalyser.connect(recordProcessor);
-        recordProcessor.connect(recordAudioContext.destination);
-        recordProcessor.onaudioprocess = () => {
-          let data = new Uint8Array(recordAnalyser.frequencyBinCount);
-          recordAnalyser.getByteFrequencyData(data);
-          let avg = data.reduce((a, b) => a + b) / data.length;
-          micBar.style.width = Math.min(100, avg) + "%";
-        };
+  // Record 10s and play back, with countdown + bar using AudioWorklet
+  async function recordMicFor10s() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micRecorder = new MediaRecorder(stream);
+      recordedChunks = [];
 
-        micRecorder.ondataavailable = e => {
-          if (e.data.size > 0) recordedChunks.push(e.data);
-        };
+      // Setup AudioWorklet-based level meter for recording session
+      recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      await ensureWorklet(recordAudioContext);
 
-        micRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: "audio/webm" });
-          const url = URL.createObjectURL(blob);
-          micPlayback.src = url;
-          micPlayback.style.display = "block";
-          micPlayback.play();
-          
-          // cleanup analyser
-          if (recordProcessor) recordProcessor.disconnect();
-          if (recordAudioContext) recordAudioContext.close();
-          micBar.style.width = "0%";
-        };
+      const source = recordAudioContext.createMediaStreamSource(stream);
+      recordAnalyser = recordAudioContext.createAnalyser();
+      recordWorkletNode = new AudioWorkletNode(recordAudioContext, 'level-meter');
+      recordWorkletNode.port.onmessage = (e) => {
+        const pct = Math.min(100, Math.round(e.data * 100));
+        micBar.style.width = pct + "%";
+      };
 
-        micRecorder.start();
+      source.connect(recordAnalyser);
+      source.connect(recordWorkletNode);
 
-        let remaining = 10;
-        document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
+      micRecorder.ondataavailable = e => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
 
-        let countdown = setInterval(() => {
-          remaining--;
-          if (remaining > 0) {
-            document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
-          }
-        }, 1000);
+      micRecorder.onstop = () => {
+        // Cleanup recording visualizer
+        try { recordWorkletNode.disconnect(); } catch {}
+        try { recordAnalyser.disconnect(); } catch {}
+        try { recordAudioContext.close(); } catch {}
+        micBar.style.width = "0%";
 
-        setTimeout(() => {
-          clearInterval(countdown);
-          micRecorder.stop();
-          stream.getTracks().forEach(track => track.stop());
-          document.getElementById("mic-status").textContent = "Reprodução da gravação.";
-        }, 10000);
-      })
-      .catch(err => {
-        document.getElementById("mic-status").textContent = "Erro ao gravar: " + err;
-      });
+        // Build blob and play
+        const blob = new Blob(recordedChunks, { type: "audio/webm" });
+        const url = URL.createObjectURL(blob);
+        micPlayback.src = url;
+        micPlayback.style.display = "block";
+        micPlayback.play();
+      };
+
+      micRecorder.start();
+
+      let remaining = 10;
+      document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
+
+      const countdown = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+          document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
+        }
+      }, 1000);
+
+      setTimeout(() => {
+        clearInterval(countdown);
+        micRecorder.stop();
+        stream.getTracks().forEach(track => track.stop());
+        document.getElementById("mic-status").textContent = "Reprodução da gravação.";
+      }, 10000);
+    } catch (err) {
+      document.getElementById("mic-status").textContent = "Erro ao gravar: " + err;
+    }
   }
 
-  // --- Áudio de saída ---
+  // Speaker analyzer (kept as AnalyserNode visualization only)
   function setupSpeakerAnalyzer() {
     if (!speakerAudioContext) {
       speakerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
       speakerSource = speakerAudioContext.createMediaElementSource(audio);
       speakerAnalyser = speakerAudioContext.createAnalyser();
-      speakerProcessor = speakerAudioContext.createScriptProcessor(1024, 1, 1);
+      speakerProcessor = speakerAudioContext.createScriptProcessor(1024, 1, 1); // harmless; only for visualization, not mic
       speakerSource.connect(speakerAnalyser);
       speakerAnalyser.connect(speakerProcessor);
       speakerProcessor.connect(speakerAudioContext.destination);
@@ -370,7 +454,7 @@
     }
   }
 
-  // --- IP/ISP info ---
+  // IP/ISP info
   function getIPv4AndISP() {
     fetch("https://ipwhois.app/json/?lang=pt")
       .then(res => res.json())
@@ -417,6 +501,7 @@
       });
   }
 
+  // Init
   window.onload = () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
@@ -427,7 +512,6 @@
     getIPv4AndISP();
     getIPv6AndISP();
   };
-
   navigator.mediaDevices.addEventListener("devicechange", listDevices);
   audio.addEventListener("ended", () => {
     speakerBar.style.width = "0%";
