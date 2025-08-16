@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>ICC - Teste de dispositivos</title>
+  <title>Teste de dispositivos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -168,6 +168,9 @@
   let speakerSource = null;
   let micRecorder = null;
   let recordedChunks = [];
+  let recordAnalyser = null;
+  let recordProcessor = null;
+  let recordAudioContext = null;
 
   function listDevices() {
     navigator.mediaDevices.enumerateDevices().then(devices => {
@@ -256,12 +259,27 @@
     document.getElementById("mic-status").textContent = "Microfone parado.";
   }
 
-  // --- New: Record 10s mic with countdown ---
+  // --- Record 10s mic + update mic-bar during recording ---
   function recordMicFor10s() {
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
         micRecorder = new MediaRecorder(stream);
         recordedChunks = [];
+        
+        // Setup analyser for mic bar during recording
+        recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = recordAudioContext.createMediaStreamSource(stream);
+        recordAnalyser = recordAudioContext.createAnalyser();
+        recordProcessor = recordAudioContext.createScriptProcessor(1024, 1, 1);
+        source.connect(recordAnalyser);
+        recordAnalyser.connect(recordProcessor);
+        recordProcessor.connect(recordAudioContext.destination);
+        recordProcessor.onaudioprocess = () => {
+          let data = new Uint8Array(recordAnalyser.frequencyBinCount);
+          recordAnalyser.getByteFrequencyData(data);
+          let avg = data.reduce((a, b) => a + b) / data.length;
+          micBar.style.width = Math.min(100, avg) + "%";
+        };
 
         micRecorder.ondataavailable = e => {
           if (e.data.size > 0) recordedChunks.push(e.data);
@@ -273,11 +291,16 @@
           micPlayback.src = url;
           micPlayback.style.display = "block";
           micPlayback.play();
+          
+          // cleanup analyser
+          if (recordProcessor) recordProcessor.disconnect();
+          if (recordAudioContext) recordAudioContext.close();
+          micBar.style.width = "0%";
         };
 
         micRecorder.start();
 
-        let remaining = 10; // countdown seconds
+        let remaining = 10;
         document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
 
         let countdown = setInterval(() => {
