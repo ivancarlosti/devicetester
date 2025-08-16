@@ -144,12 +144,6 @@
   <button id="playBtn" onclick="playSound()">Reproduzir música</button>
   <button onclick="stopSound()" class="stop">Parar música</button>
   <div id="speaker-level"><div id="speaker-bar"></div></div>
-  <label>Você ouviu o som?</label>
-  <select id="speaker-result">
-    <option value="">Selecione</option>
-    <option value="sim">Sim</option>
-    <option value="nao">Não</option>
-  </select>
 </div>
 
 <script>
@@ -262,7 +256,7 @@
     document.getElementById("mic-status").textContent = "Microfone parado.";
   }
 
-  // --- New: Record 10s mic and playback ---
+  // --- New: Record 10s mic with countdown ---
   function recordMicFor10s() {
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
@@ -282,9 +276,19 @@
         };
 
         micRecorder.start();
-        document.getElementById("mic-status").textContent = "Gravando 10s...";
+
+        let remaining = 10; // countdown seconds
+        document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
+
+        let countdown = setInterval(() => {
+          remaining--;
+          if (remaining > 0) {
+            document.getElementById("mic-status").textContent = `Gravando (${remaining}s restantes)...`;
+          }
+        }, 1000);
 
         setTimeout(() => {
+          clearInterval(countdown);
           micRecorder.stop();
           stream.getTracks().forEach(track => track.stop());
           document.getElementById("mic-status").textContent = "Reprodução da gravação.";
