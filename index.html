@@ -1,468 +1,667 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Teste de dispositivos</title>
+  <title>Teste de Dispositivos Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-color: #f8f9fa;
+      --text-color: #1f2937;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --border-color: #e5e7eb;
+      --success: #10b981;
+    }
+
+    body.dark-mode {
+      --bg-color: #111827;
+      --text-color: #f9fafb;
+      --card-bg: #1f2937;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --border-color: #374151;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 600px;
       margin: 0 auto;
-      padding: 10px;
-      max-width: 480px;
-      background-color: #f4f4f4;
     }
-    h1, h2 {
-      text-align: center;
-      color: #004080;
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
     }
-    .test-section {
-      background-color: #fff;
-      padding: 15px 20px;
-      margin-bottom: 20px;
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(90deg, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 2px solid var(--border-color);
+      color: var(--text-color);
+      padding: 8px 12px;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
     }
+
+    .theme-toggle:hover {
+      background-color: var(--border-color);
+    }
+
+    .test-card {
+      background-color: var(--card-bg);
+      padding: 24px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s;
+    }
+
+    .test-card:hover {
+      transform: translateY(-2px);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
     label {
-      font-weight: bold;
+      font-weight: 500;
       display: block;
-      margin-top: 10px;
+      margin-top: 12px;
+      font-size: 0.9rem;
     }
-    select, textarea {
+
+    select,
+    textarea {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       box-sizing: border-box;
-      margin-top: 5px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      margin-top: 6px;
+      font-size: 0.95rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: inherit;
     }
+
     button {
-      margin-top: 10px;
-      margin-right: 5px;
-      padding: 10px 15px;
-      font-size: 1rem;
+      margin-top: 12px;
+      margin-right: 8px;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
       border: none;
-      border-radius: 5px;
-      background-color: #007bff;
+      border-radius: 6px;
+      background-color: var(--primary);
       color: white;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
-    button.stop {
-      background-color: #dc3545;
-    }
+
     button:hover {
-      background-color: #0056b3;
+      background-color: var(--primary-hover);
     }
+
+    button.stop {
+      background-color: var(--danger);
+    }
+
     button.stop:hover {
-      background-color: #b52a37;
+      background-color: var(--danger-hover);
     }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
+
     video {
       width: 100%;
       background: #000;
       border-radius: 8px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
-    #mic-level, #speaker-level {
+
+    .bar-container {
       width: 100%;
-      height: 10px;
-      background: #ddd;
-      border-radius: 5px;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 4px;
       overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--success);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    #speaker-bar {
+      background: #eab308;
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text-color);
+      opacity: 0.8;
       margin-top: 8px;
     }
-    #mic-bar {
-      height: 10px;
-      background: #28a745;
-      width: 0%;
-      transition: width 0.2s;
-    }
-    #speaker-bar {
-      height: 10px;
-      background: #ffc107;
-      width: 0%;
-      transition: width 0.2s;
-    }
-    #mic-playback {
-      margin-top: 10px;
-      display: none;
+
+    /* Screen Test Overlay */
+    #screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 100%;
+      display: none;
+      z-index: 9999;
+      cursor: crosshair;
     }
-    .geo-label, .isp-label {
-      margin-top:2px;
-      font-size: 0.98em;
-      color: #555;
-      font-style: italic;
+
+    #screen-instruction {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      pointer-events: none;
+      text-align: center;
     }
   </style>
 </head>
+
 <body>
-<h1>Teste de dispositivos</h1>
 
-<!-- Rede -->
-<div class="test-section">
-  <h2>Informações de Rede e Navegador</h2>
-  <p><strong>IPv4:</strong> <span id="ipv4">Detectando...</span></p>
-  <p class="geo-label" id="geo-ipv4"></p>
-  <p class="isp-label" id="isp-label-ipv4"></p>
-  <p><strong>IPv6:</strong> <span id="ipv6">Detectando...</span></p>
-  <p class="geo-label" id="geo-ipv6"></p>
-  <p class="isp-label" id="isp-label-ipv6"></p>
-  <label>Agente do Navegador:</label>
-  <textarea id="user-agent" rows="3" readonly></textarea>
-</div>
+  <div class="container">
+    <header>
+      <h1>Teste de Dispositivos</h1>
+      <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
+    </header>
 
-<!-- Webcam -->
-<div class="test-section">
-  <h2>Teste de webcam</h2>
-  <label for="webcam-select">Escolha a webcam:</label>
-  <select id="webcam-select"></select>
-  <button onclick="startWebcam()">Iniciar webcam</button>
-  <button onclick="stopWebcam()" class="stop">Parar webcam</button>
-  <video id="webcam" autoplay playsinline></video>
-  <p id="webcam-status">Status: Não testado</p>
-</div>
+    <!-- Rede -->
+    <div class="test-card">
+      <h2>📡 Rede e Navegador</h2>
+      <p>IPv4: <strong id="ipv4">...</strong> <span class="status-text" id="geo-ipv4"></span></p>
+      <p class="status-text" id="isp-label-ipv4"></p>
+      <p>IPv6: <strong id="ipv6">...</strong> <span class="status-text" id="geo-ipv6"></span></p>
+      <p class="status-text" id="isp-label-ipv6"></p>
+      <label>User Agent:</label>
+      <textarea id="user-agent" rows="2" readonly></textarea>
+    </div>
 
-<!-- Microfone -->
-<div class="test-section">
-  <h2>Teste de microfone</h2>
-  <label for="mic-select">Escolha o microfone:</label>
-  <select id="mic-select"></select>
-  <button onclick="startMic()">Iniciar microfone</button>
-  <button onclick="stopMic()" class="stop">Parar microfone</button>
-  <button onclick="recordMicFor10s()">Gravar 10s e Reproduzir</button>
-  <div id="mic-level"><div id="mic-bar"></div></div>
-  <p id="mic-status">Status: Não testado</p>
-  <audio id="mic-playback" controls></audio>
-</div>
+    <!-- Bateria -->
+    <div class="test-card">
+      <h2>🔋 Bateria</h2>
+      <p id="battery-status">Detectando...</p>
+      <div class="bar-container">
+        <div id="battery-bar" class="bar-fill" style="background-color: var(--primary);"></div>
+      </div>
+    </div>
 
-<!-- Saída de som -->
-<div class="test-section">
-  <h2>Teste de saída de som</h2>
-  <label for="spk-select">Escolha o alto-falante:</label>
-  <select id="spk-select"></select>
-  <audio id="audio-test" src="test-sound.mp3" preload="auto"></audio>
-  <button id="playBtn" onclick="playSound()">Reproduzir música</button>
-  <button onclick="stopSound()" class="stop">Parar música</button>
-  <div id="speaker-level"><div id="speaker-bar"></div></div>
-</div>
+    <!-- Tela -->
+    <div class="test-card">
+      <h2>🖥️ Tela & Dead Pixel</h2>
+      <p class="status-text">Cicla entre cores primárias para identificar pixels mortos.</p>
+      <button onclick="startScreenTest()">Iniciar Teste de Tela</button>
+    </div>
 
-<script>
-  // Populate UA
-  document.getElementById("user-agent").value = navigator.userAgent;
+    <!-- Vibração -->
+    <div class="test-card">
+      <h2>📳 Vibração</h2>
+      <p class="status-text">Funciona apenas em dispositivos móveis compatíveis.</p>
+      <button onclick="testVibration()">Vibrar Dispositivo</button>
+    </div>
 
-  // Elements
-  const webcamSelect = document.getElementById("webcam-select");
-  const micSelect = document.getElementById("mic-select");
-  const spkSelect = document.getElementById("spk-select");
-  const video = document.getElementById("webcam");
-  const micBar = document.getElementById("mic-bar");
-  const speakerBar = document.getElementById("speaker-bar");
-  const playBtn = document.getElementById("playBtn");
-  const audio = document.getElementById("audio-test");
-  const micPlayback = document.getElementById("mic-playback");
+    <!-- Webcam -->
+    <div class="test-card">
+      <h2>📷 Webcam</h2>
+      <select id="webcam-select"></select>
+      <div>
+        <button onclick="startWebcam()">Ligar</button>
+        <button onclick="stopWebcam()" class="stop">Desligar</button>
+      </div>
+      <video id="webcam" autoplay playsinline></video>
+      <p id="webcam-status" class="status-text">Status: Aguardando...</p>
+    </div>
 
-  // State
-  let webcamStream = null;
-  let micStream = null;
+    <!-- Microfone -->
+    <div class="test-card">
+      <h2>🎤 Microfone</h2>
+      <select id="mic-select"></select>
+      <div>
+        <button onclick="startMic()">Monitorar Ao Vivo</button>
+        <button onclick="stopMic()" class="stop">Parar</button>
+        <button onclick="recordMicFor10s()">Gravar 10s</button>
+      </div>
+      <div class="bar-container">
+        <div id="mic-bar" class="bar-fill"></div>
+      </div>
+      <p id="mic-status" class="status-text">Status: Aguardando...</p>
+      <audio id="mic-playback" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
+    </div>
 
-  // Live mic monitor
-  let micAudioContext = null;
-  let micWorkletNode = null;
+    <!-- Som -->
+    <div class="test-card">
+      <h2>🔊 Saída de Som</h2>
+      <select id="spk-select"></select>
+      <audio id="audio-test" src="test-sound.mp3" preload="auto"></audio>
+      <div>
+        <button id="playBtn" onclick="playSound()">Tocar Música</button>
+        <button onclick="stopSound()" class="stop">Parar</button>
+      </div>
+      <div class="bar-container">
+        <div id="speaker-bar" class="bar-fill" style="background-color: #f59e0b;"></div>
+      </div>
+    </div>
 
-  // Speaker analyzer via AudioWorklet
-  let speakerAudioContext = null;
-  let speakerWorkletNode = null;
-  let speakerSource = null;
+  </div>
 
-  // Recorder
-  let micRecorder = null;
-  let recordedChunks = [];
+  <!-- Overlay para teste de tela -->
+  <div id="screen-overlay" onclick="nextScreenColor()">
+    <div id="screen-instruction">Clique para trocar a cor. Escura para sair.</div>
+  </div>
 
-  // Recording-time monitor
-  let recordAudioContext = null;
-  let recordWorkletNode = null;
+  <script>
+    // Theme
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
 
-  // Helper: create an ObjectURL for the AudioWorklet processor code
-  function makeLevelWorkletURL() {
-    const code = `
+    // Populate UA
+    document.getElementById("user-agent").value = navigator.userAgent;
+
+    // Elements
+    const webcamSelect = document.getElementById("webcam-select");
+    const micSelect = document.getElementById("mic-select");
+    const spkSelect = document.getElementById("spk-select");
+    const video = document.getElementById("webcam");
+    const micBar = document.getElementById("mic-bar");
+    const speakerBar = document.getElementById("speaker-bar");
+    const playBtn = document.getElementById("playBtn");
+    const audio = document.getElementById("audio-test");
+    const micPlayback = document.getElementById("mic-playback");
+
+    // State
+    let webcamStream = null;
+    let micStream = null;
+    let micAudioContext = null;
+    let micWorkletNode = null;
+    let speakerAudioContext = null;
+    let speakerWorkletNode = null;
+    let speakerSource = null;
+    let micRecorder = null;
+    let recordedChunks = [];
+    let recordAudioContext = null;
+    let recordWorkletNode = null;
+
+    // WORKLET CODE
+    function makeLevelWorkletURL() {
+      const code = `
       class LevelMeterProcessor extends AudioWorkletProcessor {
         process(inputs) {
           const input = inputs[0];
-          if (input && input[0]) {
-            const ch = input[0];
-            let sum = 0;
-            for (let i = 0; i < ch.length; i++) sum += Math.abs(ch[i]);
-            const avg = ch.length ? sum / ch.length : 0;
-            this.port.postMessage(avg);
+          if (input && input.length > 0) {
+            let maxAvg = 0;
+            // Iterate over all channels (e.g. left, right)
+            for (let c = 0; c < input.length; c++) {
+              const ch = input[c];
+              let sum = 0;
+              for (let i = 0; i < ch.length; i++) sum += Math.abs(ch[i]);
+              const avg = ch.length ? sum / ch.length : 0;
+              if (avg > maxAvg) maxAvg = avg;
+            }
+            this.port.postMessage(maxAvg);
           }
           return true;
         }
       }
       registerProcessor('level-meter', LevelMeterProcessor);
     `;
-    return URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
-  }
-
-  async function addLevelWorkletTo(ac) {
-    // Each AudioContext must load its own worklet module
-    const url = makeLevelWorkletURL();
-    await ac.audioWorklet.addModule(url);
-    URL.revokeObjectURL(url);
-  }
-
-  // Devices
-  function listDevices() {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      webcamSelect.innerHTML = "";
-      micSelect.innerHTML = "";
-      spkSelect.innerHTML = "";
-
-      devices.forEach(device => {
-        const option = document.createElement("option");
-        option.value = device.deviceId;
-        option.text = device.label || "Dispositivo não identificado";
-        if (device.kind === "videoinput") webcamSelect.appendChild(option.cloneNode(true));
-        if (device.kind === "audioinput") micSelect.appendChild(option.cloneNode(true));
-        if (device.kind === "audiooutput" && typeof spkSelect.setSinkId === "function")
-          spkSelect.appendChild(option.cloneNode(true));
-      });
-
-      if (spkSelect.options.length === 0) {
-        const option = document.createElement("option");
-        option.value = "";
-        option.text = "Sem opção de seleção – saída padrão";
-        spkSelect.appendChild(option);
-      }
-    });
-  }
-
-  // Webcam
-  function startWebcam() {
-    stopWebcam();
-    const deviceId = webcamSelect.value;
-    const constraints = { video: { deviceId: deviceId ? { exact: deviceId } : undefined } };
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then(stream => {
-        webcamStream = stream;
-        video.srcObject = stream;
-        document.getElementById("webcam-status").textContent = "Webcam funcionando!";
-      })
-      .catch(() => {
-        document.getElementById("webcam-status").textContent = "Erro ao acessar a webcam.";
-      });
-  }
-  function stopWebcam() {
-    if (webcamStream) {
-      webcamStream.getTracks().forEach(t => t.stop());
-      video.srcObject = null;
-      webcamStream = null;
-      document.getElementById("webcam-status").textContent = "Webcam parada.";
+      return URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
     }
-  }
 
-  // Live mic using AudioWorklet
-  async function startMic() {
-    stopMic();
-    const deviceId = micSelect.value;
-    const constraints = { audio: deviceId ? { deviceId: { exact: deviceId } } : true };
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: constraints.audio });
-      micStream = stream;
-
-      micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-      await addLevelWorkletTo(micAudioContext);
-
-      const source = micAudioContext.createMediaStreamSource(stream);
-      micWorkletNode = new AudioWorkletNode(micAudioContext, 'level-meter');
-      micWorkletNode.port.onmessage = (e) => {
-        const pct = Math.min(100, Math.round(e.data * 100));
-        micBar.style.width = pct + "%";
-        if (pct > 10) document.getElementById("mic-status").textContent = "Microfone funcionando!";
-      };
-
-      source.connect(micWorkletNode);
-      document.getElementById("mic-status").textContent = "Microfone capturando...";
-    } catch (e) {
-      document.getElementById("mic-status").textContent = "Erro ao acessar o microfone.";
+    async function addLevelWorkletTo(ac) {
+      const url = makeLevelWorkletURL();
+      await ac.audioWorklet.addModule(url);
+      URL.revokeObjectURL(url);
     }
-  }
 
-  function stopMic() {
-    if (micWorkletNode) { try { micWorkletNode.disconnect(); } catch {} }
-    if (micAudioContext) { try { micAudioContext.close(); } catch {} }
-    if (micStream) { micStream.getTracks().forEach(t => t.stop()); }
-    micWorkletNode = null;
-    micAudioContext = null;
-    micStream = null;
-    micBar.style.width = "0%";
-    document.getElementById("mic-status").textContent = "Microfone parado.";
-  }
+    // Devices
+    function listDevices() {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        // Preserve selection if possible? For now simple rebuild
+        webcamSelect.innerHTML = "";
+        micSelect.innerHTML = "";
+        spkSelect.innerHTML = "";
 
-  // Record 10s with countdown and visualize using AudioWorklet
-  async function recordMicFor10s() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      micRecorder = new MediaRecorder(stream);
-      recordedChunks = [];
+        devices.forEach(device => {
+          const option = document.createElement("option");
+          option.value = device.deviceId;
+          option.text = device.label || "Dispositivo não identificado";
+          if (device.kind === "videoinput") webcamSelect.appendChild(option.cloneNode(true));
+          if (device.kind === "audioinput") micSelect.appendChild(option.cloneNode(true));
+          if (device.kind === "audiooutput" && typeof spkSelect.setSinkId === "function")
+            spkSelect.appendChild(option.cloneNode(true));
+        });
 
-      recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-      await addLevelWorkletTo(recordAudioContext);
-
-      const source = recordAudioContext.createMediaStreamSource(stream);
-      recordWorkletNode = new AudioWorkletNode(recordAudioContext, 'level-meter');
-      recordWorkletNode.port.onmessage = (e) => {
-        const pct = Math.min(100, Math.round(e.data * 100));
-        micBar.style.width = pct + "%";
-      };
-
-      source.connect(recordWorkletNode);
-
-      micRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-      micRecorder.onstop = () => {
-        try { recordWorkletNode.disconnect(); } catch {}
-        try { recordAudioContext.close(); } catch {}
-        micBar.style.width = "0%";
-
-        const blob = new Blob(recordedChunks, { type: "audio/webm" });
-        const url = URL.createObjectURL(blob);
-        micPlayback.src = url;
-        micPlayback.style.display = "block";
-        micPlayback.play();
-      };
-
-      micRecorder.start();
-
-      let remaining = 10;
-      const status = document.getElementById("mic-status");
-      status.textContent = `Gravando (${remaining}s restantes)...`;
-
-      const countdown = setInterval(() => {
-        remaining--;
-        if (remaining > 0) status.textContent = `Gravando (${remaining}s restantes)...`;
-      }, 1000);
-
-      setTimeout(() => {
-        clearInterval(countdown);
-        micRecorder.stop();
-        stream.getTracks().forEach(t => t.stop());
-        status.textContent = "Reprodução da gravação.";
-      }, 10000);
-    } catch (err) {
-      document.getElementById("mic-status").textContent = "Erro ao gravar: " + err;
-    }
-  }
-
-  // Speaker analyzer using AudioWorklet (replaces ScriptProcessorNode)
-  async function setupSpeakerAnalyzer() {
-    if (!speakerAudioContext) {
-      speakerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-      await addLevelWorkletTo(speakerAudioContext);
-
-      speakerSource = speakerAudioContext.createMediaElementSource(audio);
-      speakerWorkletNode = new AudioWorkletNode(speakerAudioContext, 'level-meter');
-      speakerWorkletNode.port.onmessage = (e) => {
-        const level = Math.min(100, Math.round(e.data * 100));
-        speakerBar.style.width = level + "%";
-      };
-
-      // Route audio to worklet and to speakers
-      speakerSource.connect(speakerWorkletNode);
-      speakerSource.connect(speakerAudioContext.destination);
-      // Worklet node doesn't need to connect to destination; it's only for metering
-    }
-  }
-
-  function playSound() {
-    playBtn.disabled = true;
-    setupSpeakerAnalyzer().then(() => {
-      if (speakerAudioContext.state === "suspended") {
-        speakerAudioContext.resume().then(startPlayback).catch(startPlayback);
-      } else {
-        startPlayback();
-      }
-    });
-
-    function startPlayback() {
-      const outputId = spkSelect.value;
-      playBtn.disabled = false;
-      if (typeof audio.setSinkId === "function" && outputId) {
-        audio.setSinkId(outputId).then(() => audio.play()).catch(() => audio.play());
-      } else {
-        audio.play();
-      }
-    }
-  }
-
-  function stopSound() {
-    audio.pause();
-    audio.currentTime = 0;
-    speakerBar.style.width = "0%";
-    if (speakerAudioContext && speakerAudioContext.state !== "closed") {
-      speakerAudioContext.suspend();
-    }
-  }
-
-  // IP/ISP info
-  function getIPv4AndISP() {
-    fetch("https://ipwhois.app/json/?lang=pt")
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("ipv4").textContent = data.ip || "Indisponível";
-        const geo = [data.city, data.region, data.country].filter(Boolean);
-        document.getElementById("geo-ipv4").textContent = geo.length ? "Localização: " + geo.join(", ") : "";
-        document.getElementById("isp-label-ipv4").textContent = data.isp ? "Provedor (ISP): " + decodeURIComponent(escape(data.isp)) : "";
-      })
-      .catch(() => {
-        document.getElementById("ipv4").textContent = "Indisponível";
-        document.getElementById("geo-ipv4").textContent = "";
-        document.getElementById("isp-label-ipv4").textContent = "";
-      });
-  }
-
-  function getIPv6AndISP() {
-    fetch("https://api64.ipify.org?format=json")
-      .then(res => res.json())
-      .then(ip => {
-        if (ip.ip && ip.ip.includes(":")) {
-          document.getElementById("ipv6").textContent = ip.ip;
-          return fetch(`https://ipwhois.app/json/${ip.ip}?lang=pt`);
-        } else {
-          throw new Error("Sem IPv6");
+        if (spkSelect.options.length === 0) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.text = "Saída Padrão";
+          spkSelect.appendChild(option);
         }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const geo = [data.city, data.region, data.country].filter(Boolean);
-        document.getElementById("geo-ipv6").textContent = geo.length ? "Localização: " + geo.join(", ") : "";
-        document.getElementById("isp-label-ipv6").textContent = data.isp ? "Provedor (ISP): " + decodeURIComponent(escape(data.isp)) : "";
-      })
-      .catch(() => {
-        document.getElementById("ipv6").textContent = "Indisponível";
-        document.getElementById("geo-ipv6").textContent = "";
-        document.getElementById("isp-label-ipv6").textContent = "";
       });
-  }
+    }
 
-  // Init
-  window.onload = () => {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        stream.getTracks().forEach(t => t.stop());
+    // Webcam
+    function startWebcam() {
+      stopWebcam();
+      const deviceId = webcamSelect.value;
+      const constraints = { video: { deviceId: deviceId ? { exact: deviceId } : undefined } };
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+          webcamStream = stream;
+          video.srcObject = stream;
+          document.getElementById("webcam-status").textContent = "Webcam: Funcionando (OK)";
+          document.getElementById("webcam-status").style.color = "var(--success)";
+        })
+        .catch((e) => {
+          document.getElementById("webcam-status").textContent = "Erro: " + e.message;
+          document.getElementById("webcam-status").style.color = "var(--danger)";
+        });
+    }
+    function stopWebcam() {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(t => t.stop());
+        video.srcObject = null;
+        webcamStream = null;
+        document.getElementById("webcam-status").textContent = "Status: Parado";
+        document.getElementById("webcam-status").style.color = "var(--text-color)";
+      }
+    }
+
+    // Mic
+    async function startMic() {
+      stopMic();
+      const deviceId = micSelect.value;
+      const constraints = { audio: deviceId ? { deviceId: { exact: deviceId } } : true };
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: constraints.audio });
+        micStream = stream;
+        micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await addLevelWorkletTo(micAudioContext);
+        const source = micAudioContext.createMediaStreamSource(stream);
+        micWorkletNode = new AudioWorkletNode(micAudioContext, 'level-meter');
+        micWorkletNode.port.onmessage = (e) => {
+          const pct = Math.min(100, Math.round(e.data * 100));
+          micBar.style.width = pct + "%";
+          if (pct > 5) {
+            const st = document.getElementById("mic-status");
+            if (st.textContent !== "Capturando áudio...") {
+              st.textContent = "Capturando áudio...";
+              st.style.color = "var(--success)";
+            }
+          }
+        };
+        source.connect(micWorkletNode);
+        document.getElementById("mic-status").textContent = "Iniciando captura...";
+      } catch (e) {
+        document.getElementById("mic-status").textContent = "Erro: " + e.message;
+        document.getElementById("mic-status").style.color = "var(--danger)";
+      }
+    }
+
+    function stopMic() {
+      if (micWorkletNode) { try { micWorkletNode.disconnect(); } catch { } }
+      if (micAudioContext) { try { micAudioContext.close(); } catch { } }
+      if (micStream) { micStream.getTracks().forEach(t => t.stop()); }
+      micWorkletNode = null;
+      micAudioContext = null;
+      micStream = null;
+      micBar.style.width = "0%";
+      const st = document.getElementById("mic-status");
+      st.textContent = "Status: Parado";
+      st.style.color = "var(--text-color)";
+    }
+
+    async function recordMicFor10s() {
+      try {
+        stopMic(); // ensure clean state
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micRecorder = new MediaRecorder(stream);
+        recordedChunks = [];
+
+        recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await addLevelWorkletTo(recordAudioContext);
+        const source = recordAudioContext.createMediaStreamSource(stream);
+        recordWorkletNode = new AudioWorkletNode(recordAudioContext, 'level-meter');
+        recordWorkletNode.port.onmessage = (e) => {
+          const pct = Math.min(100, Math.round(e.data * 100));
+          micBar.style.width = pct + "%";
+        };
+        source.connect(recordWorkletNode);
+
+        micRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        micRecorder.onstop = () => {
+          try { recordWorkletNode.disconnect(); } catch { }
+          try { recordAudioContext.close(); } catch { }
+          micBar.style.width = "0%";
+
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          const url = URL.createObjectURL(blob);
+          micPlayback.src = url;
+          micPlayback.style.display = "block";
+          micPlayback.play();
+        };
+        micRecorder.start();
+
+        let remaining = 10;
+        const status = document.getElementById("mic-status");
+        status.style.color = "var(--primary)";
+        status.textContent = `Gravando... ${remaining}s`;
+
+        const countdown = setInterval(() => {
+          remaining--;
+          if (remaining > 0) status.textContent = `Gravando... ${remaining}s`;
+        }, 1000);
+
+        setTimeout(() => {
+          clearInterval(countdown);
+          micRecorder.stop();
+          stream.getTracks().forEach(t => t.stop());
+          status.textContent = "Reproduzindo gravação...";
+          status.style.color = "var(--text-color)";
+        }, 10000);
+      } catch (err) {
+        document.getElementById("mic-status").textContent = "Erro: " + err;
+      }
+    }
+
+    // Speaker
+    async function setupSpeakerAnalyzer() {
+      if (!speakerAudioContext) {
+        speakerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await addLevelWorkletTo(speakerAudioContext);
+        speakerSource = speakerAudioContext.createMediaElementSource(audio);
+        speakerWorkletNode = new AudioWorkletNode(speakerAudioContext, 'level-meter');
+        speakerWorkletNode.port.onmessage = (e) => {
+          const level = Math.min(100, Math.round(e.data * 100));
+          speakerBar.style.width = level + "%";
+        };
+        speakerSource.connect(speakerWorkletNode);
+        speakerSource.connect(speakerAudioContext.destination);
+      }
+    }
+
+    function playSound() {
+      playBtn.disabled = true;
+      setupSpeakerAnalyzer().then(() => {
+        if (speakerAudioContext.state === "suspended") {
+          speakerAudioContext.resume().then(startPlayback).catch(startPlayback);
+        } else {
+          startPlayback();
+        }
+      });
+      function startPlayback() {
+        const outputId = spkSelect.value;
+        playBtn.disabled = false;
+        if (typeof audio.setSinkId === "function" && outputId) {
+          audio.setSinkId(outputId).then(() => audio.play()).catch(() => audio.play());
+        } else {
+          audio.play();
+        }
+      }
+    }
+
+    function stopSound() {
+      audio.pause();
+      audio.currentTime = 0;
+      speakerBar.style.width = "0%";
+      if (speakerAudioContext && speakerAudioContext.state !== "closed") {
+        speakerAudioContext.suspend();
+      }
+    }
+
+    // IPs
+    function getIPv4AndISP() {
+      fetch("https://ipwhois.app/json/?lang=pt")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("ipv4").textContent = data.ip || "Indisponível";
+          const geo = [data.city, data.region, data.country].filter(Boolean);
+          document.getElementById("geo-ipv4").textContent = geo.length ? "(" + geo.join(", ") + ")" : "";
+          document.getElementById("isp-label-ipv4").textContent = data.isp ? "ISP: " + decodeURIComponent(escape(data.isp)) : "";
+        })
+        .catch(() => { });
+    }
+    function getIPv6AndISP() {
+      fetch("https://api64.ipify.org?format=json")
+        .then(res => res.json())
+        .then(ip => {
+          if (ip.ip && ip.ip.includes(":")) {
+            document.getElementById("ipv6").textContent = ip.ip;
+            return fetch(`https://ipwhois.app/json/${ip.ip}?lang=pt`);
+          } else {
+            document.getElementById("ipv6").textContent = "Não detectado";
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+          const geo = [data.city, data.region, data.country].filter(Boolean);
+          document.getElementById("geo-ipv6").textContent = geo.length ? "(" + geo.join(", ") + ")" : "";
+          document.getElementById("isp-label-ipv6").textContent = data.isp ? "ISP: " + decodeURIComponent(escape(data.isp)) : "";
+        })
+        .catch(() => { });
+    }
+
+    // NEW FEATURES
+
+    // Battery
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        function updateBattery() {
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? "⚡ Carregando" : "Desconectado";
+          document.getElementById("battery-status").textContent = `${level}% - ${charging}`;
+          document.getElementById("battery-bar").style.width = level + "%";
+
+          if (battery.charging) document.getElementById("battery-bar").style.background = "var(--success)";
+          else if (level < 20) document.getElementById("battery-bar").style.background = "var(--danger)";
+          else document.getElementById("battery-bar").style.background = "var(--primary)";
+        }
+        battery.addEventListener('levelchange', updateBattery);
+        battery.addEventListener('chargingchange', updateBattery);
+        updateBattery();
+      });
+    } else {
+      document.getElementById("battery-status").textContent = "API de Bateria não suportada neste navegador.";
+      document.getElementById("battery-bar").style.width = "0%";
+    }
+
+    // Vibration
+    function testVibration() {
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]); // Vibrate twice
+      } else {
+        alert("Seu dispositivo não suporta vibração via API web.");
+      }
+    }
+
+    // Screen
+    let screenColorIndex = 0;
+    const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFFFF", "#000000"];
+    function startScreenTest() {
+      const overlay = document.getElementById("screen-overlay");
+      overlay.style.display = "block";
+      document.documentElement.requestFullscreen().catch(() => { });
+      screenColorIndex = -1;
+      nextScreenColor();
+    }
+    function nextScreenColor() {
+      screenColorIndex++;
+      const overlay = document.getElementById("screen-overlay");
+      if (screenColorIndex >= colors.length) {
+        // Exit
+        overlay.style.display = "none";
+        if (document.fullscreenElement) document.exitFullscreen();
+      } else {
+        overlay.style.backgroundColor = colors[screenColorIndex];
+        // Hide instruction after first click for clean view
+        if (screenColorIndex > 0) document.getElementById("screen-instruction").style.display = "none";
+        else document.getElementById("screen-instruction").style.display = "block";
+      }
+    }
+
+    // On Load
+    window.onload = () => {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
+        s.getTracks().forEach(t => t.stop());
         listDevices();
-      })
-      .catch(() => listDevices());
-    getIPv4AndISP();
-    getIPv6AndISP();
-  };
-  navigator.mediaDevices.addEventListener("devicechange", listDevices);
-  audio.addEventListener("ended", () => {
-    speakerBar.style.width = "0%";
-  });
-</script>
+      }).catch(() => listDevices());
+      getIPv4AndISP();
+      getIPv6AndISP();
+    };
+    navigator.mediaDevices.addEventListener("devicechange", listDevices);
+    audio.addEventListener("ended", () => {
+      speakerBar.style.width = "0%";
+    });
+  </script>
 </body>
+
 </html>
