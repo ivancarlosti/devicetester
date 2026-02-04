@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Device Tester</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f8f9fa;
+      --text-color: #1f2937;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --border-color: #e5e7eb;
+      --success: #10b981;
+    }
+
+    body.dark-mode {
+      --bg-color: #111827;
+      --text-color: #f9fafb;
+      --card-bg: #1f2937;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --border-color: #374151;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+	
+    #ipv4, #ipv6 {
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      display: inline-block;
+      max-width: 100%;
+      vertical-align: top;
+    }
+
+    /* Shared styles for header buttons */
+    .theme-toggle,
+    .icon-btn {
+      background: none;
+      border: 2px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 1.2rem;
+      /* Larger emoji */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      /* Enforce consistent height */
+      box-sizing: border-box;
+      min-width: 44px;
+    }
+
+    .theme-toggle {
+      font-size: 0.9rem;
+      /* Restore font size for theme text */
+      gap: 6px;
+    }
+
+    .theme-toggle:hover,
+    .icon-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .icon-btn.active {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(90deg, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+
+
+    .test-card {
+      background-color: var(--card-bg);
+      padding: 24px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+
+    select.device-select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-top: 6px;
+      font-size: 0.95rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: inherit;
+    }
+
+    button {
+      margin-top: 12px;
+      margin-right: 8px;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--primary);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button.stop {
+      background-color: var(--danger);
+    }
+
+    button.stop:hover {
+      background-color: var(--danger-hover);
+    }
+
+    video {
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--success);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    #speaker-bar {
+      background: #eab308;
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text-color);
+      opacity: 0.8;
+      margin-top: 8px;
+    }
+
+    /* Screen Test Overlay */
+    #screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      z-index: 9999;
+      cursor: crosshair;
+    }
+
+    #screen-instruction {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-color);
+      opacity: 0.8;
+    }
+
+    footer a {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <h1 data-i18n="app_title">Device Tester</h1>
+        <div class="header-controls">
+          <button class="icon-btn" onclick="changeLanguage('en')" id="btn-en" aria-label="English"><img
+              src="https://flagcdn.com/24x18/us.png" alt="US" width="24" height="18"></button>
+          <button class="icon-btn" onclick="changeLanguage('pt')" id="btn-pt" aria-label="Português"><img
+              src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18"></button>
+          <button class="icon-btn" onclick="changeLanguage('es')" id="btn-es" aria-label="Español"><img
+              src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18"></button>
+          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+          <button class="theme-toggle" onclick="toggleTheme()" data-i18n="theme_toggle">🌓 Theme</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Network -->
+    <div class="test-card">
+      <h2 data-i18n="network_title">📡 Network & Browser</h2>
+      <p>IPv4: <strong id="ipv4">...</strong><br>
+      <span class="status-text" id="geo-ipv4"></span></p>
+      <p class="status-text" id="isp-label-ipv4"></p>
+      <p>IPv6: <strong id="ipv6">...</strong><br>
+      <span class="status-text" id="geo-ipv6"></span></p>
+      <p class="status-text" id="isp-label-ipv6"></p>
+      <label data-i18n="user_agent_label">User Agent:</label>
+      <textarea id="user-agent" rows="2" readonly></textarea>
+    </div>
+
+    <!-- Battery -->
+    <div class="test-card">
+      <h2 data-i18n="battery_title">🔋 Battery</h2>
+      <p id="battery-status">Detecting...</p>
+      <div class="bar-container">
+        <div id="battery-bar" class="bar-fill" style="background-color: var(--primary);"></div>
+      </div>
+    </div>
+
+    <!-- Screen -->
+    <div class="test-card">
+      <h2 data-i18n="screen_title">🖥️ Screen & Dead Pixel</h2>
+      <p class="status-text" data-i18n="screen_desc">Cycles through primary colors to identify dead pixels.</p>
+      <button onclick="startScreenTest()" data-i18n="start_screen_test">Start Screen Test</button>
+    </div>
+
+    <!-- Vibration -->
+    <div class="test-card">
+      <h2 data-i18n="vibration_title">📳 Vibration</h2>
+      <p class="status-text" data-i18n="vibration_desc">Works only on compatible mobile devices.</p>
+      <button onclick="testVibration()" data-i18n="vibrate_device">Vibrate Device</button>
+    </div>
+
+    <!-- Webcam -->
+    <div class="test-card">
+      <h2 data-i18n="webcam_title">📷 Webcam</h2>
+      <select id="webcam-select" class="device-select"></select>
+      <div>
+        <button onclick="startWebcam()" data-i18n="turn_on">Turn On</button>
+        <button onclick="stopWebcam()" class="stop" data-i18n="turn_off">Turn Off</button>
+      </div>
+      <video id="webcam" autoplay playsinline></video>
+      <p id="webcam-status" class="status-text" data-i18n="status_waiting">Status: Waiting...</p>
+    </div>
+
+    <!-- Microphone -->
+    <div class="test-card">
+      <h2 data-i18n="mic_title">🎤 Microphone</h2>
+      <select id="mic-select" class="device-select"></select>
+      <div>
+        <button onclick="startMic()" data-i18n="monitor_live">Monitor Live</button>
+        <button onclick="stopMic()" class="stop" data-i18n="stop">Stop</button>
+        <button onclick="recordMicFor10s()" data-i18n="record_10s">Record 10s</button>
+      </div>
+      <div class="bar-container">
+        <div id="mic-bar" class="bar-fill"></div>
+      </div>
+      <p id="mic-status" class="status-text" data-i18n="status_waiting">Status: Waiting...</p>
+      <audio id="mic-playback" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
+    </div>
+
+    <!-- Sound -->
+    <div class="test-card">
+      <h2 data-i18n="sound_title">🔊 Sound Output</h2>
+      <select id="spk-select" class="device-select"></select>
+      <audio id="audio-test" src="test-sound.mp3" preload="auto"></audio>
+      <div>
+        <button id="playBtn" onclick="playSound()" data-i18n="play_music">Play Music</button>
+        <button onclick="stopSound()" class="stop" data-i18n="stop">Stop</button>
+      </div>
+      <div class="bar-container">
+        <div id="speaker-bar" class="bar-fill" style="background-color: #f59e0b;"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://icc.gg/privacidade" target="_blank" data-i18n="privacy_policy">Privacy Policy</a> •
+        <a href="https://icc.gg/termos" target="_blank" data-i18n="terms_conditions">Terms and Conditions</a>
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- Overlay para teste de tela -->
+  <div id="screen-overlay" onclick="nextScreenColor()">
+    <div id="screen-instruction" data-i18n="screen_instruction">Click to change color. Esc to exit.</div>
+  </div>
+
+  <script>
+    // i18n Dictionary
+    const dictionary = {
+      en: {
+        app_title: "Device Tester",
+        theme_toggle: "🌓 Theme",
+        network_title: "📡 Network & Browser",
+        user_agent_label: "User Agent:",
+        battery_title: "🔋 Battery",
+        detecting: "Detecting...",
+        charging: "⚡ Charging",
+        disconnected: "Disconnected",
+        battery_unsupported: "Battery API not supported in this browser.",
+        screen_title: "🖥️ Screen & Dead Pixel",
+        screen_desc: "Cycles through primary colors to identify dead pixels.",
+        start_screen_test: "Start Screen Test",
+        screen_instruction: "Click to change color. Dark to exit.",
+        vibration_title: "📳 Vibration",
+        vibration_desc: "Works only on compatible mobile devices.",
+        vibrate_device: "Vibrate Device",
+        vibration_unsupported: "Your device does not support vibration via web API.",
+        webcam_title: "📷 Webcam",
+        turn_on: "Turn On",
+        turn_off: "Turn Off",
+        status_waiting: "Status: Waiting...",
+        webcam_ok: "Webcam: Working (OK)",
+        status_stopped: "Status: Stopped",
+        mic_title: "🎤 Microphone",
+        monitor_live: "Monitor Live",
+        stop: "Stop",
+        record_10s: "Record 10s",
+        capturing_audio: "Capturing audio...",
+        starting_capture: "Starting capture...",
+        recording: "Recording...",
+        playing_recording: "Playing recording...",
+        sound_title: "🔊 Sound Output",
+        play_music: "Play Music",
+        device_unknown: "Unknown Device",
+        default_output: "Default Output",
+        ipv4_unavailable: "Unavailable",
+        ipv6_not_detected: "Not detected",
+        privacy_policy: "Privacy Policy",
+        terms_conditions: "Terms and Conditions"
+      },
+      pt: {
+        app_title: "Teste de Dispositivos",
+        theme_toggle: "🌓 Tema",
+        network_title: "📡 Rede e Navegador",
+        user_agent_label: "Agente de Usuário:",
+        battery_title: "🔋 Bateria",
+        detecting: "Detectando...",
+        charging: "⚡ Carregando",
+        disconnected: "Desconectado",
+        battery_unsupported: "API de Bateria não suportada neste navegador.",
+        screen_title: "🖥️ Tela & Dead Pixel",
+        screen_desc: "Cicla entre cores primárias para identificar pixels mortos.",
+        start_screen_test: "Iniciar Teste de Tela",
+        screen_instruction: "Clique para trocar a cor. Escura para sair.",
+        vibration_title: "📳 Vibração",
+        vibration_desc: "Funciona apenas em dispositivos móveis compatíveis.",
+        vibrate_device: "Vibrar Dispositivo",
+        vibration_unsupported: "Seu dispositivo não suporta vibração via API web.",
+        webcam_title: "📷 Webcam",
+        turn_on: "Ligar",
+        turn_off: "Desligar",
+        status_waiting: "Status: Aguardando...",
+        webcam_ok: "Webcam: Funcionando (OK)",
+        status_stopped: "Status: Parado",
+        mic_title: "🎤 Microfone",
+        monitor_live: "Monitorar Ao Vivo",
+        stop: "Parar",
+        record_10s: "Gravar 10s",
+        capturing_audio: "Capturando áudio...",
+        starting_capture: "Iniciando captura...",
+        recording: "Gravando...",
+        playing_recording: "Reproduzindo gravação...",
+        sound_title: "🔊 Saída de Som",
+        play_music: "Tocar Música",
+        device_unknown: "Dispositivo não identificado",
+        default_output: "Saída Padrão",
+        ipv4_unavailable: "Indisponível",
+        ipv6_not_detected: "Não detectado",
+        privacy_policy: "Política de Privacidade",
+        terms_conditions: "Termos e Condições"
+      },
+      es: {
+        app_title: "Prueba de Dispositivos",
+        theme_toggle: "🌓 Tema",
+        network_title: "📡 Red y Navegador",
+        user_agent_label: "Agente de Usuario:",
+        battery_title: "🔋 Batería",
+        detecting: "Detectando...",
+        charging: "⚡ Cargando",
+        disconnected: "Desconectado",
+        battery_unsupported: "API de batería no soportada en este navegador.",
+        screen_title: "🖥️ Pantalla y Píxeles Muertos",
+        screen_desc: "Alterna entre colores primarios para identificar píxeles muertos.",
+        start_screen_test: "Iniciar Prueba de Pantalla",
+        screen_instruction: "Haga clic para cambiar de color. Oscuro para salir.",
+        vibration_title: "📳 Vibración",
+        vibration_desc: "Funciona solo en dispositivos móviles compatibles.",
+        vibrate_device: "Vibrar Dispositivo",
+        vibration_unsupported: "Su dispositivo no admite vibración a través de la API web.",
+        webcam_title: "📷 Cámara Web",
+        turn_on: "Encender",
+        turn_off: "Apagar",
+        status_waiting: "Estado: Esperando...",
+        webcam_ok: "Cámara: Funcionando (OK)",
+        status_stopped: "Estado: Detenido",
+        mic_title: "🎤 Micrófono",
+        monitor_live: "Monitorear en Vivo",
+        stop: "Parar",
+        record_10s: "Grabar 10s",
+        capturing_audio: "Capturando audio...",
+        starting_capture: "Iniciando captura...",
+        recording: "Grabando...",
+        playing_recording: "Reproduciendo grabación...",
+        sound_title: "🔊 Salida de Sonido",
+        play_music: "Reproducir Música",
+        device_unknown: "Dispositivo desconocido",
+        default_output: "Salida Predeterminada",
+        ipv4_unavailable: "No disponible",
+        ipv6_not_detected: "No detectado",
+        privacy_policy: "Política de Privacidad",
+        terms_conditions: "Términos y Condiciones"
+      }
+    };
+
+    let currentLang = localStorage.getItem('deviceTesterLang') || 'en';
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('deviceTesterLang', lang);
+
+      // Update active button state
+      document.querySelectorAll('.icon-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-${lang}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.documentElement.lang = lang === 'pt' ? 'pt-BR' : (lang === 'es' ? 'es-MX' : 'en-US'); // Set html tag lang
+      applyTranslations();
+      // Refresh dynamic content that depends on language (like IP detection messages if needed, though they are mostly dynamic data)
+      // Re-listing devices to update "Unknown Device" text
+      listDevices();
+      // Trigger battery update to refresh text
+      if (navigator.getBattery) {
+        navigator.getBattery().then(b => b.dispatchEvent(new Event('levelchange')));
+      } else {
+        document.getElementById("battery-status").textContent = dictionary[currentLang].battery_unsupported;
+      }
+    }
+
+    function applyTranslations() {
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dictionary[currentLang] && dictionary[currentLang][key]) {
+          el.textContent = dictionary[currentLang][key];
+        }
+      });
+    }
+
+    // Initialize Language
+    changeLanguage(currentLang);
+
+
+    // Theme
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    // Populate UA
+    document.getElementById("user-agent").value = navigator.userAgent;
+
+    // Elements
+    const webcamSelect = document.getElementById("webcam-select");
+    const micSelect = document.getElementById("mic-select");
+    const spkSelect = document.getElementById("spk-select");
+    const video = document.getElementById("webcam");
+    const micBar = document.getElementById("mic-bar");
+    const speakerBar = document.getElementById("speaker-bar");
+    const playBtn = document.getElementById("playBtn");
+    const audio = document.getElementById("audio-test");
+    const micPlayback = document.getElementById("mic-playback");
+
+    // State
+    let webcamStream = null;
+    let micStream = null;
+    let micAudioContext = null;
+    let micWorkletNode = null;
+    let speakerAudioContext = null;
+    let speakerWorkletNode = null;
+    let speakerSource = null;
+    let micRecorder = null;
+    let recordedChunks = [];
+    let recordAudioContext = null;
+    let recordWorkletNode = null;
+
+    // WORKLET CODE
+    function makeLevelWorkletURL() {
+      const code = `
+      class LevelMeterProcessor extends AudioWorkletProcessor {
+        process(inputs) {
+          const input = inputs[0];
+          if (input && input.length > 0) {
+            let maxAvg = 0;
+            // Iterate over all channels (e.g. left, right)
+            for (let c = 0; c < input.length; c++) {
+              const ch = input[c];
+              let sum = 0;
+              for (let i = 0; i < ch.length; i++) sum += Math.abs(ch[i]);
+              const avg = ch.length ? sum / ch.length : 0;
+              if (avg > maxAvg) maxAvg = avg;
+            }
+            this.port.postMessage(maxAvg);
+          }
+          return true;
+        }
+      }
+      registerProcessor('level-meter', LevelMeterProcessor);
+    `;
+      return URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
+    }
+
+    async function addLevelWorkletTo(ac) {
+      const url = makeLevelWorkletURL();
+      await ac.audioWorklet.addModule(url);
+      URL.revokeObjectURL(url);
+    }
+
+    // Devices
+    function listDevices() {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        // Preserve selection if possible? For now simple rebuild
+        const oldWebcam = webcamSelect.value;
+        const oldMic = micSelect.value;
+        const oldSpk = spkSelect.value;
+
+        webcamSelect.innerHTML = "";
+        micSelect.innerHTML = "";
+        spkSelect.innerHTML = "";
+
+        devices.forEach(device => {
+          const option = document.createElement("option");
+          option.value = device.deviceId;
+          option.text = device.label || dictionary[currentLang].device_unknown;
+          if (device.kind === "videoinput") webcamSelect.appendChild(option.cloneNode(true));
+          if (device.kind === "audioinput") micSelect.appendChild(option.cloneNode(true));
+          if (device.kind === "audiooutput" && typeof spkSelect.setSinkId === "function")
+            spkSelect.appendChild(option.cloneNode(true));
+        });
+
+        if (spkSelect.options.length === 0) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.text = dictionary[currentLang].default_output;
+          spkSelect.appendChild(option);
+        }
+
+        // Try to restore selection
+        if (oldWebcam) webcamSelect.value = oldWebcam;
+        if (oldMic) micSelect.value = oldMic;
+        if (oldSpk) spkSelect.value = oldSpk;
+      });
+    }
+
+    // Webcam
+    function startWebcam() {
+      stopWebcam();
+      const deviceId = webcamSelect.value;
+      const constraints = { video: { deviceId: deviceId ? { exact: deviceId } : undefined } };
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+          webcamStream = stream;
+          video.srcObject = stream;
+          document.getElementById("webcam-status").textContent = dictionary[currentLang].webcam_ok;
+          document.getElementById("webcam-status").style.color = "var(--success)";
+        })
+        .catch((e) => {
+          document.getElementById("webcam-status").textContent = "Erro: " + e.message;
+          document.getElementById("webcam-status").style.color = "var(--danger)";
+        });
+    }
+    function stopWebcam() {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(t => t.stop());
+        video.srcObject = null;
+        webcamStream = null;
+        document.getElementById("webcam-status").textContent = dictionary[currentLang].status_stopped;
+        document.getElementById("webcam-status").style.color = "var(--text-color)";
+      }
+    }
+
+    // Mic
+    async function startMic() {
+      stopMic();
+      const deviceId = micSelect.value;
+      const constraints = { audio: deviceId ? { deviceId: { exact: deviceId } } : true };
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: constraints.audio });
+        micStream = stream;
+        micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await addLevelWorkletTo(micAudioContext);
+        const source = micAudioContext.createMediaStreamSource(stream);
+        micWorkletNode = new AudioWorkletNode(micAudioContext, 'level-meter');
+        micWorkletNode.port.onmessage = (e) => {
+          const pct = Math.min(100, Math.round(e.data * 100));
+          micBar.style.width = pct + "%";
+          if (pct > 5) {
+            const st = document.getElementById("mic-status");
+            if (st.textContent !== dictionary[currentLang].capturing_audio) {
+              st.textContent = dictionary[currentLang].capturing_audio;
+              st.style.color = "var(--success)";
+            }
+          }
+        };
+        source.connect(micWorkletNode);
+        document.getElementById("mic-status").textContent = dictionary[currentLang].starting_capture;
+      } catch (e) {
+        document.getElementById("mic-status").textContent = "Erro: " + e.message;
+        document.getElementById("mic-status").style.color = "var(--danger)";
+      }
+    }
+
+    function stopMic() {
+      if (micWorkletNode) { try { micWorkletNode.disconnect(); } catch { } }
+      if (micAudioContext) { try { micAudioContext.close(); } catch { } }
+      if (micStream) { micStream.getTracks().forEach(t => t.stop()); }
+      micWorkletNode = null;
+      micAudioContext = null;
+      micStream = null;
+      micBar.style.width = "0%";
+      const st = document.getElementById("mic-status");
+      st.textContent = dictionary[currentLang].status_stopped;
+      st.style.color = "var(--text-color)";
+    }
+
+    async function recordMicFor10s() {
+      try {
+        stopMic(); // ensure clean state
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micRecorder = new MediaRecorder(stream);
+        recordedChunks = [];
+
+        recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await addLevelWorkletTo(recordAudioContext);
+        const source = recordAudioContext.createMediaStreamSource(stream);
+        recordWorkletNode = new AudioWorkletNode(recordAudioContext, 'level-meter');
+        recordWorkletNode.port.onmessage = (e) => {
+          const pct = Math.min(100, Math.round(e.data * 100));
+          micBar.style.width = pct + "%";
+        };
+        source.connect(recordWorkletNode);
+
+        micRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        micRecorder.onstop = () => {
+          try { recordWorkletNode.disconnect(); } catch { }
+          try { recordAudioContext.close(); } catch { }
+          micBar.style.width = "0%";
+
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          const url = URL.createObjectURL(blob);
+          micPlayback.src = url;
+          micPlayback.style.display = "block";
+          micPlayback.play();
+        };
+        micRecorder.start();
+
+        let remaining = 10;
+        const status = document.getElementById("mic-status");
+        status.style.color = "var(--primary)";
+        status.textContent = `${dictionary[currentLang].recording} ${remaining}s`;
+
+        const countdown = setInterval(() => {
+          remaining--;
+          if (remaining > 0) status.textContent = `${dictionary[currentLang].recording} ${remaining}s`;
+        }, 1000);
+
+        setTimeout(() => {
+          clearInterval(countdown);
+          micRecorder.stop();
+          stream.getTracks().forEach(t => t.stop());
+          status.textContent = dictionary[currentLang].playing_recording;
+          status.style.color = "var(--text-color)";
+        }, 10000);
+      } catch (err) {
+        document.getElementById("mic-status").textContent = "Erro: " + err;
+      }
+    }
+
+    // Speaker
+    async function setupSpeakerAnalyzer() {
+      if (!speakerAudioContext) {
+        speakerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await addLevelWorkletTo(speakerAudioContext);
+        speakerSource = speakerAudioContext.createMediaElementSource(audio);
+        speakerWorkletNode = new AudioWorkletNode(speakerAudioContext, 'level-meter');
+        speakerWorkletNode.port.onmessage = (e) => {
+          const level = Math.min(100, Math.round(e.data * 100));
+          speakerBar.style.width = level + "%";
+        };
+        speakerSource.connect(speakerWorkletNode);
+        speakerSource.connect(speakerAudioContext.destination);
+      }
+    }
+
+    function playSound() {
+      playBtn.disabled = true;
+      setupSpeakerAnalyzer().then(() => {
+        if (speakerAudioContext.state === "suspended") {
+          speakerAudioContext.resume().then(startPlayback).catch(startPlayback);
+        } else {
+          startPlayback();
+        }
+      });
+      function startPlayback() {
+        const outputId = spkSelect.value;
+        playBtn.disabled = false;
+        if (typeof audio.setSinkId === "function" && outputId) {
+          audio.setSinkId(outputId).then(() => audio.play()).catch(() => audio.play());
+        } else {
+          audio.play();
+        }
+      }
+    }
+
+    function stopSound() {
+      audio.pause();
+      audio.currentTime = 0;
+      speakerBar.style.width = "0%";
+      if (speakerAudioContext && speakerAudioContext.state !== "closed") {
+        speakerAudioContext.suspend();
+      }
+    }
+
+    // IPs
+    function getIPv4AndISP() {
+      fetch("https://ipwhois.app/json/?lang=en") // Using 'en' for consistency, can be improved to use currentLang but ISP data might be mix
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("ipv4").textContent = data.ip || dictionary[currentLang].ipv4_unavailable;
+          const geo = [data.city, data.region, data.country].filter(Boolean);
+          document.getElementById("geo-ipv4").textContent = geo.length ? "(" + geo.join(", ") + ")" : "";
+          document.getElementById("isp-label-ipv4").textContent = data.isp ? "ISP: " + decodeURIComponent(escape(data.isp)) : "";
+        })
+        .catch(() => { });
+    }
+
+    function getIPv6AndISP() {
+      // Use IPv6 specific endpoint to force IPv6 usage
+      fetch("https://api6.ipify.org?format=json")
+        .then(res => {
+          if (!res.ok) throw new Error("IPv6 Fetch Failed");
+          return res.json();
+        })
+        .then(ip => {
+          if (ip.ip && ip.ip.includes(":")) {
+            document.getElementById("ipv6").textContent = ip.ip;
+            // Fetch validation/Geo for IPv6
+            return fetch(`https://ipwhois.app/json/${ip.ip}?lang=en`);
+          } else {
+            throw new Error("No IPv6 detected");
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+          const geo = [data.city, data.region, data.country].filter(Boolean);
+          document.getElementById("geo-ipv6").textContent = geo.length ? "(" + geo.join(", ") + ")" : "";
+          document.getElementById("isp-label-ipv6").textContent = data.isp ? "ISP: " + decodeURIComponent(escape(data.isp)) : "";
+        })
+        .catch((e) => {
+          console.log("IPv6 Check Failed:", e);
+          document.getElementById("ipv6").textContent = dictionary[currentLang].ipv6_not_detected;
+        });
+    }
+
+    // NEW FEATURES
+
+    // Battery
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        function updateBattery() {
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? dictionary[currentLang].charging : dictionary[currentLang].disconnected;
+          document.getElementById("battery-status").textContent = `${level}% - ${charging}`;
+          document.getElementById("battery-bar").style.width = level + "%";
+
+          if (battery.charging) document.getElementById("battery-bar").style.background = "var(--success)";
+          else if (level < 20) document.getElementById("battery-bar").style.background = "var(--danger)";
+          else document.getElementById("battery-bar").style.background = "var(--primary)";
+        }
+        battery.addEventListener('levelchange', updateBattery);
+        battery.addEventListener('chargingchange', updateBattery);
+        updateBattery();
+      });
+    } else {
+      // Wait for dictionary to be ready or just set it
+      setTimeout(() => {
+        document.getElementById("battery-status").textContent = dictionary[currentLang].battery_unsupported;
+        document.getElementById("battery-bar").style.width = "0%";
+      }, 100);
+    }
+
+    // Vibration
+    function testVibration() {
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]); // Vibrate twice
+      } else {
+        alert(dictionary[currentLang].vibration_unsupported);
+      }
+    }
+
+    // Screen
+    let screenColorIndex = 0;
+    const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFFFF", "#000000"];
+    function startScreenTest() {
+      const overlay = document.getElementById("screen-overlay");
+      overlay.style.display = "block";
+      document.documentElement.requestFullscreen().catch(() => { });
+      screenColorIndex = -1;
+      nextScreenColor();
+    }
+    function nextScreenColor() {
+      screenColorIndex++;
+      const overlay = document.getElementById("screen-overlay");
+      if (screenColorIndex >= colors.length) {
+        // Exit
+        overlay.style.display = "none";
+        if (document.fullscreenElement) document.exitFullscreen();
+      } else {
+        overlay.style.backgroundColor = colors[screenColorIndex];
+        // Hide instruction after first click for clean view
+        if (screenColorIndex > 0) document.getElementById("screen-instruction").style.display = "none";
+        else document.getElementById("screen-instruction").style.display = "block";
+      }
+    }
+
+    // On Load
+    window.onload = () => {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
+        s.getTracks().forEach(t => t.stop());
+        listDevices();
+      }).catch(() => listDevices());
+      getIPv4AndISP();
+      getIPv6AndISP();
+
+      // Ensure initial text is correct
+      applyTranslations();
+    };
+    navigator.mediaDevices.addEventListener("devicechange", listDevices);
+    audio.addEventListener("ended", () => {
+      speakerBar.style.width = "0%";
+    });
+  </script>
+</body>
+
+</html>
