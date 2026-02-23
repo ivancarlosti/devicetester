@@ -819,13 +819,20 @@
 
     // IPs
     function getIPv4AndISP() {
-      fetch("https://ipwhois.app/json/?lang=en") // Using 'en' for consistency, can be improved to use currentLang but ISP data might be mix
+      fetch("https://api.ipify.org?format=json")
         .then(res => res.json())
         .then(data => {
           document.getElementById("ipv4").textContent = data.ip || dictionary[currentLang].ipv4_unavailable;
+          if (data.ip) {
+            return fetch(`https://get.geojs.io/v1/ip/geo/${data.ip}.json`);
+          }
+        })
+        .then(res => { if (res) return res.json(); })
+        .then(data => {
+          if (!data) return;
           const geo = [data.city, data.region, data.country].filter(Boolean);
           document.getElementById("geo-ipv4").textContent = geo.length ? "(" + geo.join(", ") + ")" : "";
-          document.getElementById("isp-label-ipv4").textContent = data.isp ? "ISP: " + decodeURIComponent(escape(data.isp)) : "";
+          document.getElementById("isp-label-ipv4").textContent = data.organization ? "ISP: " + data.organization : "";
         })
         .catch(() => { });
     }
@@ -841,7 +848,7 @@
           if (ip.ip && ip.ip.includes(":")) {
             document.getElementById("ipv6").textContent = ip.ip;
             // Fetch validation/Geo for IPv6
-            return fetch(`https://ipwhois.app/json/${ip.ip}?lang=en`);
+            return fetch(`https://get.geojs.io/v1/ip/geo/${ip.ip}.json`);
           } else {
             throw new Error("No IPv6 detected");
           }
@@ -851,7 +858,7 @@
           if (!data) return;
           const geo = [data.city, data.region, data.country].filter(Boolean);
           document.getElementById("geo-ipv6").textContent = geo.length ? "(" + geo.join(", ") + ")" : "";
-          document.getElementById("isp-label-ipv6").textContent = data.isp ? "ISP: " + decodeURIComponent(escape(data.isp)) : "";
+          document.getElementById("isp-label-ipv6").textContent = data.organization ? "ISP: " + data.organization : "";
         })
         .catch((e) => {
           console.log("IPv6 Check Failed:", e);
