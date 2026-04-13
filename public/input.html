@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="app_title">Device Tester - Inputs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <h1 data-i18n="app_title">Device Tester</h1>
+        <div class="header-controls">
+          <button class="icon-btn" onclick="changeLanguage('en')" id="btn-en" aria-label="English"><img
+              src="https://flagcdn.com/24x18/us.png" alt="US" width="24" height="18"></button>
+          <button class="icon-btn" onclick="changeLanguage('pt')" id="btn-pt" aria-label="Português"><img
+              src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18"></button>
+          <button class="icon-btn" onclick="changeLanguage('es')" id="btn-es" aria-label="Español"><img
+              src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18"></button>
+          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+          <button class="theme-toggle" onclick="toggleTheme()" data-i18n="theme_toggle">🌓 Theme</button>
+        </div>
+      </div>
+      <div class="nav-links" style="display: flex; gap: 10px; margin-top: 10px;">
+        <a href="index.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_main">🏠 Main Tester</a>
+      </div>
+    </header>
+
+    <!-- Mouse Test -->
+    <div class="test-card">
+      <h2 data-i18n="mouse_title">🖱️ Mouse Test</h2>
+      <p style="font-size: 0.9rem; margin-top: 0;" data-i18n="mouse_desc">Click and hold anywhere in the box below to test all your mouse buttons (Left, Middle, Right, Back, Forward).</p>
+      
+      <div class="mouse-area" id="mouse-area">
+        <span id="mouse-instruction" data-i18n="mouse_instruction">Click Here</span>
+      </div>
+      
+      <div class="mouse-stats">
+        <div class="stat-box">
+          <span data-i18n="last_button">Last Button Pressed</span>
+          <span class="stat-value" id="mouse-last-btn">-</span>
+        </div>
+        <div class="stat-box">
+          <span data-i18n="hold_time">Hold Time (ms)</span>
+          <span class="stat-value" id="mouse-hold-time">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Test -->
+    <div class="test-card">
+      <h2 data-i18n="keyboard_title">⌨️ Keyboard Test</h2>
+      <p style="font-size: 0.9rem; margin-top: 0;" data-i18n="keyboard_desc">Press any key on your keyboard to test. Identifies the specific key code.</p>
+      
+      <div class="key-display" id="key-display">
+        <span style="opacity: 0.5; font-size: 1.5rem;" data-i18n="keyboard_instruction">Press a key...</span>
+      </div>
+      <div class="key-history" id="key-history"></div>
+    </div>
+
+    <!-- Refresh Rate Test -->
+    <div class="test-card">
+      <h2 data-i18n="refresh_title">📺 Monitor Refresh Rate</h2>
+      <p style="font-size: 0.9rem; margin-top: 0;" data-i18n="refresh_desc">Calculating your current monitor's refresh rate (FPS) in real-time.</p>
+      
+      <div class="fps-display" id="fps-display">-- Hz</div>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://icc.gg/privacidade" target="_blank" data-i18n="privacy_policy">Privacy Policy</a> •
+        <a href="https://icc.gg/termos" target="_blank" data-i18n="terms_conditions">Terms and Conditions</a>
+      </p>
+    </footer>
+
+  </div>
+
+  <script>
+    // i18n Dictionary
+    const dictionary = {
+      en: {
+        app_title: "Device Tester",
+        theme_toggle: "🌓 Theme",
+        nav_inputs: "⌨️ Inputs & Peripherals Test",
+        nav_main: "🏠 Main Tester",
+        mouse_title: "🖱️ Mouse Test",
+        mouse_desc: "Click and hold anywhere in the box below to test all your mouse buttons (Left, Middle, Right, Back, Forward).",
+        mouse_instruction: "Click Here",
+        last_button: "Last Button Pressed",
+        hold_time: "Hold Time (ms)",
+        keyboard_title: "⌨️ Keyboard Test",
+        keyboard_desc: "Press any key on your keyboard to test. Identifies the specific key code.",
+        keyboard_instruction: "Press a key...",
+        refresh_title: "📺 Monitor Refresh Rate",
+        refresh_desc: "Calculating your current monitor's refresh rate (FPS) in real-time.",
+        privacy_policy: "Privacy Policy",
+        terms_conditions: "Terms and Conditions",
+        btn_left: "Left Click",
+        btn_middle: "Middle Click",
+        btn_right: "Right Click",
+        btn_back: "Browser Back",
+        btn_forward: "Browser Forward",
+        btn_unknown: "Unknown Button"
+      },
+      pt: {
+        app_title: "Teste de Dispositivos",
+        theme_toggle: "🌓 Tema",
+        nav_inputs: "⌨️ Entradas e Periféricos",
+        nav_main: "🏠 Testador Principal",
+        mouse_title: "🖱️ Teste de Mouse",
+        mouse_desc: "Clique e segure em qualquer lugar na caixa abaixo para testar os botões do mouse (Esquerdo, Meio, Direito, Voltar, Avançar).",
+        mouse_instruction: "Clique Aqui",
+        last_button: "Último Botão Pressionado",
+        hold_time: "Tempo Segurado (ms)",
+        keyboard_title: "⌨️ Teste de Teclado",
+        keyboard_desc: "Pressione qualquer tecla no seu teclado para testar. Identifica o código específico da tecla.",
+        keyboard_instruction: "Pressione uma tecla...",
+        refresh_title: "📺 Taxa de Atualização do Monitor",
+        refresh_desc: "Calculando a taxa de atualização (FPS) do seu monitor atual em tempo real.",
+        privacy_policy: "Política de Privacidade",
+        terms_conditions: "Termos e Condições",
+        btn_left: "Botão Esquerdo",
+        btn_middle: "Botão do Meio",
+        btn_right: "Botão Direito",
+        btn_back: "Botão Voltar",
+        btn_forward: "Botão Avançar",
+        btn_unknown: "Botão Desconhecido"
+      },
+      es: {
+        app_title: "Prueba de Dispositivos",
+        theme_toggle: "🌓 Tema",
+        nav_inputs: "⌨️ Entradas y Periféricos",
+        nav_main: "🏠 Probador Principal",
+        mouse_title: "🖱️ Prueba de Ratón",
+        mouse_desc: "Haga clic y mantenga presionado en cualquier lugar de la caja para probar los botones (Izquierdo, Medio, Derecho, Atrás, Adelante).",
+        mouse_instruction: "Haga Clic Aquí",
+        last_button: "Último Botón Presionado",
+        hold_time: "Tiempo Mantenido (ms)",
+        keyboard_title: "⌨️ Prueba de Teclado",
+        keyboard_desc: "Presione cualquier tecla de su teclado para probar. Identifica el código específico de la tecla.",
+        keyboard_instruction: "Presiona una tecla...",
+        refresh_title: "📺 Frecuencia de Actualización",
+        refresh_desc: "Calculando la frecuencia de actualización (FPS) de su monitor en tiempo real.",
+        privacy_policy: "Política de Privacidad",
+        terms_conditions: "Términos y Condiciones",
+        btn_left: "Clic Izquierdo",
+        btn_middle: "Clic Medio",
+        btn_right: "Clic Derecho",
+        btn_back: "Botón Atrás",
+        btn_forward: "Botón Adelante",
+        btn_unknown: "Botón Desconocido"
+      }
+    };
+
+    let currentLang = localStorage.getItem('deviceTesterLang') || 'en';
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('deviceTesterLang', lang);
+
+      document.querySelectorAll('.icon-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-${lang}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.documentElement.lang = lang === 'pt' ? 'pt-BR' : (lang === 'es' ? 'es-MX' : 'en-US');
+      applyTranslations();
+      updateMouseBtnText();
+    }
+
+    function applyTranslations() {
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dictionary[currentLang] && dictionary[currentLang][key]) {
+          el.textContent = dictionary[currentLang][key];
+        }
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    // --- Mouse Test Logic ---
+    const mouseArea = document.getElementById('mouse-area');
+    const mouseLastBtn = document.getElementById('mouse-last-btn');
+    const mouseHoldTime = document.getElementById('mouse-hold-time');
+    const mouseInstruction = document.getElementById('mouse-instruction');
+
+    let holdStartTime = 0;
+    let holdInterval = null;
+    let lastButtonId = -1;
+
+    function getMouseButtonName(buttonIndex) {
+        switch(buttonIndex) {
+            case 0: return dictionary[currentLang].btn_left;
+            case 1: return dictionary[currentLang].btn_middle;
+            case 2: return dictionary[currentLang].btn_right;
+            case 3: return dictionary[currentLang].btn_back;
+            case 4: return dictionary[currentLang].btn_forward;
+            default: return dictionary[currentLang].btn_unknown;
+        }
+    }
+    
+    function updateMouseBtnText() {
+        if(lastButtonId !== -1) {
+             mouseLastBtn.textContent = getMouseButtonName(lastButtonId);
+        }
+    }
+
+    mouseArea.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      mouseArea.classList.add('active-click');
+      mouseInstruction.textContent = "Hold!";
+      
+      lastButtonId = e.button;
+      updateMouseBtnText();
+      
+      holdStartTime = performance.now();
+      clearInterval(holdInterval);
+      holdInterval = setInterval(() => {
+        const elapsed = Math.floor(performance.now() - holdStartTime);
+        mouseHoldTime.textContent = elapsed;
+      }, 10);
+    });
+
+    mouseArea.addEventListener('mouseup', (e) => {
+      e.preventDefault();
+      mouseArea.classList.remove('active-click');
+      mouseInstruction.textContent = dictionary[currentLang].mouse_instruction;
+      clearInterval(holdInterval);
+    });
+
+    mouseArea.addEventListener('mouseleave', (e) => {
+      mouseArea.classList.remove('active-click');
+      clearInterval(holdInterval);
+      mouseInstruction.textContent = dictionary[currentLang].mouse_instruction;
+    });
+
+    mouseArea.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+
+    // --- Keyboard Test Logic ---
+    const keyDisplay = document.getElementById('key-display');
+    const keyHistory = document.getElementById('key-history');
+    let historyKeys = [];
+
+    window.addEventListener('keydown', (e) => {
+      // Prevent default for many keys but allow essential browser functions if possible
+      // Prevent mostly to avoid scrolling when pressing space/arrows
+      if(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab"].includes(e.code)) {
+          e.preventDefault();
+      }
+      
+      keyDisplay.innerHTML = `<span style="font-size: 1.2rem; color: var(--text-color);">${e.key}</span> <br/> ${e.code}`;
+      
+      // Update history
+      historyKeys.unshift(`${e.key} (${e.code})`);
+      if(historyKeys.length > 5) historyKeys.pop();
+      keyHistory.innerHTML = historyKeys.join('<br/>');
+    });
+
+    // --- Refresh Rate (FPS) Check ---
+    const fpsDisplay = document.getElementById('fps-display');
+    let frameCount = 0;
+    let t0 = performance.now();
+    let rAF;
+
+    function calcFPS(ts) {
+      frameCount++;
+      const elapsed = ts - t0;
+      if (elapsed >= 1000) {
+        const fps = Math.round((frameCount * 1000) / elapsed);
+        fpsDisplay.textContent = fps + " Hz";
+        frameCount = 0;
+        t0 = ts;
+      }
+      rAF = requestAnimationFrame(calcFPS);
+    }
+    
+    // On Load
+    window.onload = () => {
+      changeLanguage(currentLang);
+      rAF = requestAnimationFrame(calcFPS);
+    };
+
+  </script>
+</body>
+
+</html>
