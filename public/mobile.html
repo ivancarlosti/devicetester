@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="app_title">Device Tester - Mobile Sensors</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <h1 data-i18n="app_title">Device Tester</h1>
+        <div class="header-controls">
+          <button class="icon-btn" onclick="changeLanguage('en')" id="btn-en" aria-label="English"><img
+              src="https://flagcdn.com/24x18/us.png" alt="US" width="24" height="18"></button>
+          <button class="icon-btn" onclick="changeLanguage('pt')" id="btn-pt" aria-label="Português"><img
+              src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18"></button>
+          <button class="icon-btn" onclick="changeLanguage('es')" id="btn-es" aria-label="Español"><img
+              src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18"></button>
+          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+          <button class="theme-toggle" onclick="toggleTheme()" data-i18n="theme_toggle">🌓 Theme</button>
+        </div>
+      </div>
+      <div class="nav-links" style="display: flex; gap: 10px; margin-top: 10px;">
+        <a href="index.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_main">🏠 Main Tester</a>
+        <a href="input.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_inputs">⌨️ Inputs & Peripherals Test</a>
+      </div>
+    </header>
+
+    <!-- Vibration Test (moved from index.html) -->
+    <div class="test-card">
+      <h2 data-i18n="vibration_title">📳 Vibration</h2>
+      <p class="status-text" data-i18n="vibration_desc">Works only on compatible mobile devices.</p>
+      <button onclick="testVibration()" data-i18n="vibrate_device">Vibrate Device</button>
+      <p id="vibration-status" class="status-text"></p>
+    </div>
+
+    <!-- Accelerometer Test -->
+    <div class="test-card">
+      <h2 data-i18n="accelerometer_title">📈 Accelerometer</h2>
+      <p class="status-text" data-i18n="accelerometer_desc">Measures acceleration in m/s² (including gravity).</p>
+      <button onclick="startAccelerometer()" data-i18n="start_accelerometer">Start Accelerometer</button>
+      <button onclick="stopAccelerometer()" class="stop" data-i18n="stop">Stop</button>
+      
+      <div style="margin-top: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="width: 80px;" data-i18n="x_axis">X Axis:</span>
+          <div class="bar-container" style="flex: 1; margin-left: 10px;">
+            <div id="accel-x-bar" class="bar-fill" style="background-color: #ef4444;"></div>
+          </div>
+          <span id="accel-x-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="width: 80px;" data-i18n="y_axis">Y Axis:</span>
+          <div class="bar-container" style="flex: 1; margin-left: 10px;">
+            <div id="accel-y-bar" class="bar-fill" style="background-color: #10b981;"></div>
+          </div>
+          <span id="accel-y-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="width: 80px;" data-i18n="z_axis">Z Axis:</span>
+          <div class="bar-container" style="flex: 1; margin-left: 10px;">
+            <div id="accel-z-bar" class="bar-fill" style="background-color: #3b82f6;"></div>
+          </div>
+          <span id="accel-z-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+        </div>
+      </div>
+      <p id="accelerometer-status" class="status-text" data-i18n="accelerometer_waiting">Status: Waiting...</p>
+    </div>
+
+    <!-- Gyroscope Test -->
+    <div class="test-card">
+      <h2 data-i18n="gyroscope_title">🔄 Gyroscope</h2>
+      <p class="status-text" data-i18n="gyroscope_desc">Measures rotation rate in degrees per second.</p>
+      <button onclick="startGyroscope()" data-i18n="start_gyroscope">Start Gyroscope</button>
+      <button onclick="stopGyroscope()" class="stop" data-i18n="stop">Stop</button>
+      
+      <div style="margin-top: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="width: 80px;" data-i18n="alpha">Alpha:</span>
+          <div class="bar-container" style="flex: 1; margin-left: 10px;">
+            <div id="gyro-alpha-bar" class="bar-fill" style="background-color: #8b5cf6;"></div>
+          </div>
+          <span id="gyro-alpha-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="width: 80px;" data-i18n="beta">Beta:</span>
+          <div class="bar-container" style="flex: 1; margin-left: 10px;">
+            <div id="gyro-beta-bar" class="bar-fill" style="background-color: #f59e0b;"></div>
+          </div>
+          <span id="gyro-beta-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <span style="width: 80px;" data-i18n="gamma">Gamma:</span>
+          <div class="bar-container" style="flex: 1; margin-left: 10px;">
+            <div id="gyro-gamma-bar" class="bar-fill" style="background-color: #ec4899;"></div>
+          </div>
+          <span id="gyro-gamma-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+        </div>
+      </div>
+      <p id="gyroscope-status" class="status-text" data-i18n="gyroscope_waiting">Status: Waiting...</p>
+    </div>
+
+    <!-- Compass Test -->
+    <div class="test-card">
+      <h2 data-i18n="compass_title">🧭 Compass</h2>
+      <p class="status-text" data-i18n="compass_desc">Displays device orientation relative to true north.</p>
+      <button onclick="startCompass()" data-i18n="start_compass">Start Compass</button>
+      <button onclick="stopCompass()" class="stop" data-i18n="stop">Stop</button>
+      
+      <div style="margin-top: 20px; text-align: center;">
+        <div style="position: relative; width: 200px; height: 200px; margin: 0 auto; border-radius: 50%; background: var(--card-bg); border: 3px solid var(--border-color);">
+          <div id="compass-needle" style="position: absolute; top: 50%; left: 50%; width: 4px; height: 80px; background: var(--danger); transform-origin: 50% 0; transform: translate(-50%, -100%) rotate(0deg); transition: transform 0.1s;"></div>
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: bold;" id="compass-degree">0°</div>
+        </div>
+        <div style="margin-top: 20px;">
+          <span data-i18n="heading">Heading:</span> <strong id="compass-heading">0°</strong>
+          <br>
+          <span data-i18n="direction">Direction:</span> <strong id="compass-direction" data-i18n="north">North</strong>
+        </div>
+      </div>
+      <p id="compass-status" class="status-text" data-i18n="compass_waiting">Status: Waiting...</p>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://icc.gg/privacidade" target="_blank" data-i18n="privacy_policy">Privacy Policy</a> •
+        <a href="https://icc.gg/termos" target="_blank" data-i18n="terms_conditions">Terms and Conditions</a>
+      </p>
+    </footer>
+
+  </div>
+
+  <script>
+    // i18n Dictionary
+    const dictionary = {
+      en: {
+        app_title: "Device Tester",
+        theme_toggle: "🌓 Theme",
+        nav_main: "🏠 Main Tester",
+        nav_inputs: "⌨️ Inputs & Peripherals Test",
+        vibration_title: "📳 Vibration",
+        vibration_desc: "Works only on compatible mobile devices.",
+        vibrate_device: "Vibrate Device",
+        vibration_unsupported: "Your device does not support vibration via web API.",
+        accelerometer_title: "📈 Accelerometer",
+        accelerometer_desc: "Measures acceleration in m/s² (including gravity).",
+        start_accelerometer: "Start Accelerometer",
+        accelerometer_waiting: "Status: Waiting...",
+        accelerometer_active: "Status: Active",
+        accelerometer_unsupported: "Accelerometer not supported on this device.",
+        gyroscope_title: "🔄 Gyroscope",
+        gyroscope_desc: "Measures rotation rate in degrees per second.",
+        start_gyroscope: "Start Gyroscope",
+        gyroscope_waiting: "Status: Waiting...",
+        gyroscope_active: "Status: Active",
+        gyroscope_unsupported: "Gyroscope not supported on this device.",
+        compass_title: "🧭 Compass",
+        compass_desc: "Displays device orientation relative to true north.",
+        start_compass: "Start Compass",
+        compass_waiting: "Status: Waiting...",
+        compass_active: "Status: Active",
+        compass_unsupported: "Compass not supported on this device.",
+        stop: "Stop",
+        x_axis: "X Axis:",
+        y_axis: "Y Axis:",
+        z_axis: "Z Axis:",
+        alpha: "Alpha:",
+        beta: "Beta:",
+        gamma: "Gamma:",
+        heading: "Heading:",
+        direction: "Direction:",
+        north: "North",
+        northeast: "Northeast",
+        east: "East",
+        southeast: "Southeast",
+        south: "South",
+        southwest: "Southwest",
+        west: "West",
+        northwest: "Northwest",
+        privacy_policy: "Privacy Policy",
+        terms_conditions: "Terms and Conditions"
+      },
+      pt: {
+        app_title: "Teste de Dispositivos",
+        theme_toggle: "🌓 Tema",
+        nav_main: "🏠 Testador Principal",
+        nav_inputs: "⌨️ Entradas e Periféricos",
+        vibration_title: "📳 Vibração",
+        vibration_desc: "Funciona apenas em dispositivos móveis compatíveis.",
+        vibrate_device: "Vibrar Dispositivo",
+        vibration_unsupported: "Seu dispositivo não suporta vibração via API web.",
+        accelerometer_title: "📈 Acelerômetro",
+        accelerometer_desc: "Mede a aceleração em m/s² (incluindo gravidade).",
+        start_accelerometer: "Iniciar Acelerômetro",
+        accelerometer_waiting: "Status: Aguardando...",
+        accelerometer_active: "Status: Ativo",
+        accelerometer_unsupported: "Acelerômetro não suportado neste dispositivo.",
+        gyroscope_title: "🔄 Giroscópio",
+        gyroscope_desc: "Mede a taxa de rotação em graus por segundo.",
+        start_gyroscope: "Iniciar Giroscópio",
+        gyroscope_waiting: "Status: Aguardando...",
+        gyroscope_active: "Status: Ativo",
+        gyroscope_unsupported: "Giroscópio não suportado neste dispositivo.",
+        compass_title: "🧭 Bússola",
+        compass_desc: "Mostra a orientação do dispositivo em relação ao norte verdadeiro.",
+        start_compass: "Iniciar Bússola",
+        compass_waiting: "Status: Aguardando...",
+        compass_active: "Status: Ativo",
+        compass_unsupported: "Bússola não suportada neste dispositivo.",
+        stop: "Parar",
+        x_axis: "Eixo X:",
+        y_axis: "Eixo Y:",
+        z_axis: "Eixo Z:",
+        alpha: "Alfa:",
+        beta: "Beta:",
+        gamma: "Gama:",
+        heading: "Direção:",
+        direction: "Sentido:",
+        north: "Norte",
+        northeast: "Nordeste",
+        east: "Leste",
+        southeast: "Sudeste",
+        south: "Sul",
+        southwest: "Sudoeste",
+        west: "Oeste",
+        northwest: "Noroeste",
+        privacy_policy: "Política de Privacidade",
+        terms_conditions: "Termos e Condições"
+      },
+      es: {
+        app_title: "Prueba de Dispositivos",
+        theme_toggle: "🌓 Tema",
+        nav_main: "🏠 Probador Principal",
+        nav_inputs: "⌨️ Entradas y Periféricos",
+        vibration_title: "📳 Vibración",
+        vibration_desc: "Funciona solo en dispositivos móviles compatibles.",
+        vibrate_device: "Vibrar Dispositivo",
+        vibration_unsupported: "Su dispositivo no admite vibración a través de la API web.",
+        accelerometer_title: "📈 Acelerómetro",
+        accelerometer_desc: "Mide la aceleración en m/s² (incluyendo gravedad).",
+        start_accelerometer: "Iniciar Acelerómetro",
+        accelerometer_waiting: "Estado: Esperando...",
+        accelerometer_active: "Estado: Activo",
+        accelerometer_unsupported: "Acelerómetro no soportado en este dispositivo.",
+        gyroscope_title: "🔄 Giroscopio",
+        gyroscope_desc: "Mide la tasa de rotación en grados por segundo.",
+        start_gyroscope: "Iniciar Giroscopio",
+        gyroscope_waiting: "Estado: Esperando...",
+        gyroscope_active: "Estado: Activo",
+        gyroscope_unsupported: "Giroscopio no soportado en este dispositivo.",
+        compass_title: "🧭 Brújula",
+        compass_desc: "Muestra la orientación del dispositivo respecto al norte verdadero.",
+        start_compass: "Iniciar Brújula",
+        compass_waiting: "Estado: Esperando...",
+        compass_active: "Estado: Activo",
+        compass_unsupported: "Brújula no soportada en este dispositivo.",
+        stop: "Parar",
+        x_axis: "Eje X:",
+        y_axis: "Eje Y:",
+        z_axis: "Eje Z:",
+        alpha: "Alfa:",
+        beta: "Beta:",
+        gamma: "Gamma:",
+        heading: "Rumbo:",
+        direction: "Dirección:",
+        north: "Norte",
+        northeast: "Noreste",
+        east: "Este",
+        southeast: "Sureste",
+        south: "Sur",
+        southwest: "Suroeste",
+        west: "Oeste",
+        northwest: "Noroeste",
+        privacy_policy: "Política de Privacidad",
+        terms_conditions: "Términos y Condiciones"
+      }
+    };
+
+    let currentLang = localStorage.getItem('deviceTesterLang') || 'en';
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('deviceTesterLang', lang);
+
+      // Update active button state
+      document.querySelectorAll('.icon-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-${lang}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.documentElement.lang = lang === 'pt' ? 'pt-BR' : (lang === 'es' ? 'es-MX' : 'en-US');
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dictionary[currentLang] && dictionary[currentLang][key]) {
+          el.textContent = dictionary[currentLang][key];
+        }
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    // Initialize Language
+    changeLanguage(currentLang);
+
+    // Vibration
+    function testVibration() {
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+        document.getElementById('vibration-status').textContent = 'Vibration triggered!';
+        document.getElementById('vibration-status').style.color = 'var(--success)';
+      } else {
+        alert(dictionary[currentLang].vibration_unsupported);
+      }
+    }
+
+    // Accelerometer
+    let accelerometerActive = false;
+    let accelerometerInterval = null;
+
+    function startAccelerometer() {
+      if (!window.DeviceMotionEvent) {
+        document.getElementById('accelerometer-status').textContent = dictionary[currentLang].accelerometer_unsupported;
+        document.getElementById('accelerometer-status').style.color = 'var(--danger)';
+        return;
+      }
+      
+      if (accelerometerActive) return;
+      
+      accelerometerActive = true;
+      document.getElementById('accelerometer-status').textContent = dictionary[currentLang].accelerometer_active;
+      document.getElementById('accelerometer-status').style.color = 'var(--success)';
+      
+      window.addEventListener('devicemotion', handleAccelerometer);
+    }
+
+    function stopAccelerometer() {
+      accelerometerActive = false;
+      window.removeEventListener('devicemotion', handleAccelerometer);
+      document.getElementById('accelerometer-status').textContent = dictionary[currentLang].accelerometer_waiting;
+      document.getElementById('accelerometer-status').style.color = 'var(--text-color)';
+      
+      // Reset bars
+      document.getElementById('accel-x-bar').style.width = '0%';
+      document.getElementById('accel-y-bar').style.width = '0%';
+      document.getElementById('accel-z-bar').style.width = '0%';
+      document.getElementById('accel-x-value').textContent = '0.00';
+      document.getElementById('accel-y-value').textContent = '0.00';
+      document.getElementById('accel-z-value').textContent = '0.00';
+    }
+
+    function handleAccelerometer(event) {
+      const accel = event.accelerationIncludingGravity;
+      if (!accel) return;
+      
+      // Normalize values for display (typical range -20 to 20 m/s²)
+      const x = accel.x || 0;
+      const y = accel.y || 0;
+      const z = accel.z || 0;
+      
+      // Update bars (0-100% corresponds to -20 to 20 m/s²)
+      const xPercent = Math.min(100, Math.max(0, (x + 20) * 2.5));
+      const yPercent = Math.min(100, Math.max(0, (y + 20) * 2.5));
+      const zPercent = Math.min(100, Math.max(0, (z + 20) * 2.5));
+      
+      document.getElementById('accel-x-bar').style.width = xPercent + '%';
+      document.getElementById('accel-y-bar').style.width = yPercent + '%';
+      document.getElementById('accel-z-bar').style.width = zPercent + '%';
+      
+      document.getElementById('accel-x-value').textContent = x.toFixed(2);
+      document.getElementById('accel-y-value').textContent = y.toFixed(2);
+      document.getElementById('accel-z-value').textContent = z.toFixed(2);
+    }
+
+    // Gyroscope
+    let gyroscopeActive = false;
+
+    function startGyroscope() {
+      if (!window.DeviceOrientationEvent) {
+        document.getElementById('gyroscope-status').textContent = dictionary[currentLang].gyroscope_unsupported;
+        document.getElementById('gyroscope-status').style.color = 'var(--danger)';
+        return;
+      }
+      
+      if (gyroscopeActive) return;
+      
+      gyroscopeActive = true;
+      document.getElementById('gyroscope-status').textContent = dictionary[currentLang].gyroscope_active;
+      document.getElementById('gyroscope-status').style.color = 'var(--success)';
+      
+      window.addEventListener('deviceorientation', handleGyroscope);
+    }
+
+    function stopGyroscope() {
+      gyroscopeActive = false;
+      window.removeEventListener('deviceorientation', handleGyroscope);
+      document.getElementById('gyroscope-status').textContent = dictionary[currentLang].gyroscope_waiting;
+      document.getElementById('gyroscope-status').style.color = 'var(--text-color)';
+      
+      // Reset bars
+      document.getElementById('gyro-alpha-bar').style.width = '0%';
+      document.getElementById('gyro-beta-bar').style.width = '0%';
+      document.getElementById('gyro-gamma-bar').style.width = '0%';
+      document.getElementById('gyro-alpha-value').textContent = '0.00';
+      document.getElementById('gyro-beta-value').textContent = '0.00';
+      document.getElementById('gyro-gamma-value').textContent = '0.00';
+    }
+
+    function handleGyroscope(event) {
+      const alpha = event.alpha || 0;  // z-axis rotation
+      const beta = event.beta || 0;    // x-axis rotation
+      const gamma = event.gamma || 0;  // y-axis rotation
+      
+      // Normalize for display (alpha 0-360, beta -180 to 180, gamma -90 to 90)
+      const alphaPercent = Math.min(100, Math.max(0, alpha / 3.6));
+      const betaPercent = Math.min(100, Math.max(0, (beta + 180) / 3.6));
+      const gammaPercent = Math.min(100, Math.max(0, (gamma + 90) / 1.8));
+      
+      document.getElementById('gyro-alpha-bar').style.width = alphaPercent + '%';
+      document.getElementById('gyro-beta-bar').style.width = betaPercent + '%';
+      document.getElementById('gyro-gamma-bar').style.width = gammaPercent + '%';
+      
+      document.getElementById('gyro-alpha-value').textContent = alpha.toFixed(2);
+      document.getElementById('gyro-beta-value').textContent = beta.toFixed(2);
+      document.getElementById('gyro-gamma-value').textContent = gamma.toFixed(2);
+    }
+
+    // Compass
+    let compassActive = false;
+
+    function startCompass() {
+      if (!window.DeviceOrientationEvent) {
+        document.getElementById('compass-status').textContent = dictionary[currentLang].compass_unsupported;
+        document.getElementById('compass-status').style.color = 'var(--danger)';
+        return;
+      }
+      
+      if (compassActive) return;
+      
+      compassActive = true;
+      document.getElementById('compass-status').textContent = dictionary[currentLang].compass_active;
+      document.getElementById('compass-status').style.color = 'var(--success)';
+      
+      window.addEventListener('deviceorientation', handleCompass);
+    }
+
+    function stopCompass() {
+      compassActive = false;
+      window.removeEventListener('deviceorientation', handleCompass);
+      document.getElementById('compass-status').textContent = dictionary[currentLang].compass_waiting;
+      document.getElementById('compass-status').style.color = 'var(--text-color)';
+      
+      // Reset compass
+      document.getElementById('compass-needle').style.transform = 'translate(-50%, -100%) rotate(0deg)';
+      document.getElementById('compass-degree').textContent = '0°';
+      document.getElementById('compass-heading').textContent = '0°';
+      document.getElementById('compass-direction').textContent = dictionary[currentLang].north;
+    }
+
+    function handleCompass(event) {
+      const heading = event.alpha || 0; // Compass heading (0-360)
+      
+      // Update needle rotation
+      document.getElementById('compass-needle').style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
+      document.getElementById('compass-degree').textContent = Math.round(heading) + '°';
+      document.getElementById('compass-heading').textContent = Math.round(heading) + '°';
+      
+      // Determine direction
+      const dir = getDirection(heading);
+      document.getElementById('compass-direction').textContent = dictionary[currentLang][dir];
+    }
+
+    function getDirection(heading) {
+      if (heading >= 337.5 || heading < 22.5) return 'north';
+      if (heading >= 22.5 && heading < 67.5) return 'northeast';
+      if (heading >= 67.5 && heading < 112.5) return 'east';
+      if (heading >= 112.5 && heading < 157.5) return 'southeast';
+      if (heading >= 157.5 && heading < 202.5) return 'south';
+      if (heading >= 202.5 && heading < 247.5) return 'southwest';
+      if (heading >= 247.5 && heading < 292.5) return 'west';
+      if (heading >= 292.5 && heading < 337.5) return 'northwest';
+      return 'north';
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      stopAccelerometer();
+      stopGyroscope();
+      stopCompass();
+    });
+  </script>
+</body>
+
+</html>
