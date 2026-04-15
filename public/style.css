@@ -109,7 +109,9 @@ h1 {
   margin: 0;
   background: linear-gradient(90deg, var(--primary), #8b5cf6);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .test-card {
@@ -422,40 +424,17 @@ footer a:hover {
   border-bottom: 15px solid var(--danger);
 }
 
-.compass-needle::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 12px;
-  height: 12px;
-  background: var(--text-color);
-  border-radius: 50%;
-  z-index: 11;
-}
-
 .compass-center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   background: var(--text-color);
   border-radius: 50%;
   z-index: 11;
-}
-
-.compass-degree {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  font-weight: bold;
-  z-index: 12;
-  text-shadow: 0 0 4px var(--card-bg);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
 .compass-info {

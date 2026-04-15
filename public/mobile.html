@@ -123,7 +123,6 @@
           </div>
           <div class="compass-needle" id="compass-needle"></div>
           <div class="compass-center"></div>
-          <div class="compass-degree" id="compass-degree">0°</div>
         </div>
         <div class="compass-info">
           <span data-i18n="heading">Heading:</span> <strong id="compass-heading">0°</strong>
@@ -503,7 +502,6 @@
       
       // Reset compass
       document.getElementById('compass-needle').style.transform = 'translate(-50%, -100%) rotate(0deg)';
-      document.getElementById('compass-degree').textContent = '0°';
       document.getElementById('compass-heading').textContent = '0°';
       document.getElementById('compass-direction').textContent = dictionary[currentLang].north;
     }
@@ -513,7 +511,6 @@
       
       // Update needle rotation
       document.getElementById('compass-needle').style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
-      document.getElementById('compass-degree').textContent = Math.round(heading) + '°';
       document.getElementById('compass-heading').textContent = Math.round(heading) + '°';
       
       // Determine direction
