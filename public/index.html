@@ -24,13 +24,13 @@
               src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18"></button>
           <button class="icon-btn" onclick="changeLanguage('es')" id="btn-es" aria-label="Español"><img
               src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18"></button>
-          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+          <div class="vertical-divider"></div>
           <button class="theme-toggle" onclick="toggleTheme()" data-i18n="theme_toggle">🌓 Theme</button>
         </div>
       </div>
-      <div class="nav-links" style="display: flex; gap: 10px; margin-top: 10px;">
-        <a href="input.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_inputs">⌨️ Peripherals</a>
-        <a href="mobile.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_mobile">📱 Mobile</a>
+      <div class="nav-links-container">
+        <a href="input.html" class="icon-btn nav-link-btn" data-i18n="nav_inputs">⌨️ Peripherals</a>
+        <a href="mobile.html" class="icon-btn nav-link-btn" data-i18n="nav_mobile">📱 Mobile</a>
       </div>
     </header>
 
@@ -52,7 +52,7 @@
       <h2 data-i18n="battery_title">🔋 Battery</h2>
       <p id="battery-status">Detecting...</p>
       <div class="bar-container">
-        <div id="battery-bar" class="bar-fill" style="background-color: var(--primary);"></div>
+        <div id="battery-bar" class="bar-fill"></div>
       </div>
     </div>
 
@@ -89,7 +89,7 @@
         <div id="mic-bar" class="bar-fill"></div>
       </div>
       <p id="mic-status" class="status-text" data-i18n="status_waiting">Status: Waiting...</p>
-      <audio id="mic-playback" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
+      <audio id="mic-playback" controls class="audio-controls"></audio>
     </div>
 
     <!-- Sound -->
@@ -102,7 +102,7 @@
         <button onclick="stopSound()" class="stop" data-i18n="stop">Stop</button>
       </div>
       <div class="bar-container">
-        <div id="speaker-bar" class="bar-fill" style="background-color: #f59e0b;"></div>
+        <div id="speaker-bar" class="bar-fill bar-color-warning"></div>
       </div>
     </div>
 

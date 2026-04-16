@@ -24,13 +24,13 @@
               src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18"></button>
           <button class="icon-btn" onclick="changeLanguage('es')" id="btn-es" aria-label="Español"><img
               src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18"></button>
-          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+          <div class="vertical-divider"></div>
           <button class="theme-toggle" onclick="toggleTheme()" data-i18n="theme_toggle">🌓 Theme</button>
         </div>
       </div>
-      <div class="nav-links" style="display: flex; gap: 10px; margin-top: 10px;">
-        <a href="index.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_main">🏠 Main</a>
-        <a href="input.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_inputs">⌨️ Peripherals</a>
+      <div class="nav-links-container">
+        <a href="index.html" class="icon-btn nav-link-btn" data-i18n="nav_main">🏠 Main</a>
+        <a href="input.html" class="icon-btn nav-link-btn" data-i18n="nav_inputs">⌨️ Peripherals</a>
       </div>
     </header>
 
@@ -49,27 +49,27 @@
       <button onclick="startAccelerometer()" data-i18n="start_accelerometer">Start Accelerometer</button>
       <button onclick="stopAccelerometer()" class="stop" data-i18n="stop">Stop</button>
       
-      <div style="margin-top: 20px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <span style="width: 80px;" data-i18n="x_axis">X Axis:</span>
-          <div class="bar-container" style="flex: 1; margin-left: 10px;">
-            <div id="accel-x-bar" class="bar-fill" style="background-color: #ef4444;"></div>
+      <div class="mt-20">
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="x_axis">X Axis:</span>
+          <div class="sensor-bar-container">
+            <div id="accel-x-bar" class="bar-fill bar-color-red"></div>
           </div>
-          <span id="accel-x-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+          <span id="accel-x-value" class="sensor-value">0.00</span>
         </div>
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <span style="width: 80px;" data-i18n="y_axis">Y Axis:</span>
-          <div class="bar-container" style="flex: 1; margin-left: 10px;">
-            <div id="accel-y-bar" class="bar-fill" style="background-color: #10b981;"></div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="y_axis">Y Axis:</span>
+          <div class="sensor-bar-container">
+            <div id="accel-y-bar" class="bar-fill bar-color-green"></div>
           </div>
-          <span id="accel-y-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+          <span id="accel-y-value" class="sensor-value">0.00</span>
         </div>
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <span style="width: 80px;" data-i18n="z_axis">Z Axis:</span>
-          <div class="bar-container" style="flex: 1; margin-left: 10px;">
-            <div id="accel-z-bar" class="bar-fill" style="background-color: #3b82f6;"></div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="z_axis">Z Axis:</span>
+          <div class="sensor-bar-container">
+            <div id="accel-z-bar" class="bar-fill bar-color-blue"></div>
           </div>
-          <span id="accel-z-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+          <span id="accel-z-value" class="sensor-value">0.00</span>
         </div>
       </div>
       <p id="accelerometer-status" class="status-text" data-i18n="accelerometer_waiting">Status: Waiting...</p>
@@ -82,27 +82,27 @@
       <button onclick="startGyroscope()" data-i18n="start_gyroscope">Start Gyroscope</button>
       <button onclick="stopGyroscope()" class="stop" data-i18n="stop">Stop</button>
       
-      <div style="margin-top: 20px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <span style="width: 80px;" data-i18n="alpha">Alpha:</span>
-          <div class="bar-container" style="flex: 1; margin-left: 10px;">
-            <div id="gyro-alpha-bar" class="bar-fill" style="background-color: #8b5cf6;"></div>
+      <div class="mt-20">
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="alpha">Alpha:</span>
+          <div class="sensor-bar-container">
+            <div id="gyro-alpha-bar" class="bar-fill bar-color-purple"></div>
           </div>
-          <span id="gyro-alpha-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+          <span id="gyro-alpha-value" class="sensor-value">0.00</span>
         </div>
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <span style="width: 80px;" data-i18n="beta">Beta:</span>
-          <div class="bar-container" style="flex: 1; margin-left: 10px;">
-            <div id="gyro-beta-bar" class="bar-fill" style="background-color: #f59e0b;"></div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="beta">Beta:</span>
+          <div class="sensor-bar-container">
+            <div id="gyro-beta-bar" class="bar-fill bar-color-warning"></div>
           </div>
-          <span id="gyro-beta-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+          <span id="gyro-beta-value" class="sensor-value">0.00</span>
         </div>
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <span style="width: 80px;" data-i18n="gamma">Gamma:</span>
-          <div class="bar-container" style="flex: 1; margin-left: 10px;">
-            <div id="gyro-gamma-bar" class="bar-fill" style="background-color: #ec4899;"></div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="gamma">Gamma:</span>
+          <div class="sensor-bar-container">
+            <div id="gyro-gamma-bar" class="bar-fill bar-color-pink"></div>
           </div>
-          <span id="gyro-gamma-value" style="margin-left: 10px; font-family: monospace; min-width: 80px;">0.00</span>
+          <span id="gyro-gamma-value" class="sensor-value">0.00</span>
         </div>
       </div>
       <p id="gyroscope-status" class="status-text" data-i18n="gyroscope_waiting">Status: Waiting...</p>
@@ -115,7 +115,7 @@
       <button onclick="startCompass()" data-i18n="start_compass">Start Compass</button>
       <button onclick="stopCompass()" class="stop" data-i18n="stop">Stop</button>
       
-      <div style="margin-top: 20px; text-align: center;">
+      <div class="mt-20 text-center">
         <div class="compass" id="compass">
           <div class="compass-bevel"></div>
           <div class="compass-rose" id="compass-rose">

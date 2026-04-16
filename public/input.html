@@ -24,20 +24,20 @@
               src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18"></button>
           <button class="icon-btn" onclick="changeLanguage('es')" id="btn-es" aria-label="Español"><img
               src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18"></button>
-          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+          <div class="vertical-divider"></div>
           <button class="theme-toggle" onclick="toggleTheme()" data-i18n="theme_toggle">🌓 Theme</button>
         </div>
       </div>
-      <div class="nav-links" style="display: flex; gap: 10px; margin-top: 10px;">
-        <a href="index.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_main">🏠 Main</a>
-        <a href="mobile.html" class="icon-btn" style="text-decoration: none; font-size: 0.9rem; padding: 0 16px;" data-i18n="nav_mobile">📱 Mobile</a>
+      <div class="nav-links-container">
+        <a href="index.html" class="icon-btn nav-link-btn" data-i18n="nav_main">🏠 Main</a>
+        <a href="mobile.html" class="icon-btn nav-link-btn" data-i18n="nav_mobile">📱 Mobile</a>
       </div>
     </header>
 
     <!-- Mouse Test -->
     <div class="test-card">
       <h2 data-i18n="mouse_title">🖱️ Mouse Test</h2>
-      <p style="font-size: 0.9rem; margin-top: 0;" data-i18n="mouse_desc">Click and hold anywhere in the box below to test all your mouse buttons (Left, Middle, Right, Back, Forward).</p>
+      <p class="text-small mt-0" data-i18n="mouse_desc">Click and hold anywhere in the box below to test all your mouse buttons (Left, Middle, Right, Back, Forward).</p>
       
       <div class="mouse-area" id="mouse-area">
         <span id="mouse-instruction" data-i18n="mouse_instruction">Click Here</span>
@@ -58,10 +58,10 @@
     <!-- Keyboard Test -->
     <div class="test-card">
       <h2 data-i18n="keyboard_title">⌨️ Keyboard Test</h2>
-      <p style="font-size: 0.9rem; margin-top: 0;" data-i18n="keyboard_desc">Press any key on your keyboard to test. Identifies the specific key code.</p>
+      <p class="text-small mt-0" data-i18n="keyboard_desc">Press any key on your keyboard to test. Identifies the specific key code.</p>
       
       <div class="key-display" id="key-display">
-        <span style="opacity: 0.5; font-size: 1.5rem;" data-i18n="keyboard_instruction">Press a key...</span>
+        <span class="opacity-50 text-1-5" data-i18n="keyboard_instruction">Press a key...</span>
       </div>
       <div class="key-history" id="key-history"></div>
     </div>
@@ -69,7 +69,7 @@
     <!-- Refresh Rate Test -->
     <div class="test-card">
       <h2 data-i18n="refresh_title">📺 Monitor Refresh Rate</h2>
-      <p style="font-size: 0.9rem; margin-top: 0;" data-i18n="refresh_desc">Calculating your current monitor's refresh rate (FPS) in real-time.</p>
+      <p class="text-small mt-0" data-i18n="refresh_desc">Calculating your current monitor's refresh rate (FPS) in real-time.</p>
       
       <div class="fps-display" id="fps-display">-- Hz</div>
     </div>
@@ -264,7 +264,7 @@
           e.preventDefault();
       }
       
-      keyDisplay.innerHTML = `<span style="font-size: 1.2rem; color: var(--text-color);">${e.key}</span> <br/> ${e.code}`;
+      keyDisplay.innerHTML = `<span class="text-1-2 key-pressed">${e.key}</span> <br/> ${e.code}`;
       
       // Update history
       historyKeys.unshift(`${e.key} (${e.code})`);
