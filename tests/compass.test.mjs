@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { normalize, computeHeading, getDirection } = require('../public/compass.js');
+const { normalize, computeHeading, shortestRotationDelta, getDirection } = require('../public/compass.js');
 
 test('normalize wraps negatives and >=360 into [0, 360)', () => {
   assert.equal(normalize(0), 0);
@@ -89,4 +89,50 @@ test('computeHeading ignores NaN webkitCompassHeading and falls back to alpha', 
   const r = computeHeading({ webkitCompassHeading: Number.NaN, absolute: true, alpha: 45 });
   assert.equal(r.heading, 315);
   assert.equal(r.source, 'absolute');
+});
+
+test('shortestRotationDelta picks the short way for small CW/CCW steps', () => {
+  assert.equal(shortestRotationDelta(0, 1), 1);
+  assert.equal(shortestRotationDelta(0, -1), -1);
+  assert.equal(shortestRotationDelta(10, 20), 10);
+  assert.equal(shortestRotationDelta(20, 10), -10);
+});
+
+test('shortestRotationDelta unwraps across 0°/360° to a 2° step (the bug we are fixing)', () => {
+  // Going from -1° (≈ 359°) accumulated rotation to a target of -359° (≈ 1°)
+  // would naively be a +358° change; the helper must return -2° (or +2°).
+  assert.equal(shortestRotationDelta(-1, -359), 2);
+  assert.equal(shortestRotationDelta(-359, -1), -2);
+  // Same idea expressed as positive headings.
+  assert.equal(shortestRotationDelta(359, 1), 2);
+  assert.equal(shortestRotationDelta(1, 359), -2);
+});
+
+test('shortestRotationDelta keeps result in [-180, 180] and lands on target', () => {
+  for (let from = -720; from <= 720; from += 37) {
+    for (let to = -720; to <= 720; to += 41) {
+      const d = shortestRotationDelta(from, to);
+      assert.ok(d >= -180 && d <= 180, `delta out of range for ${from}→${to}: ${d}`);
+      // (from + d) and `to` must point at the same compass position mod 360.
+      assert.equal(normalize(from + d), normalize(to));
+    }
+  }
+});
+
+test('shortestRotationDelta handles 180° antipodes consistently', () => {
+  // 180° away — either direction is equally short. Implementation picks -180,
+  // but accumulating it must still land at the right compass position.
+  const d = shortestRotationDelta(0, 180);
+  assert.ok(d === 180 || d === -180);
+  assert.equal(normalize(0 + d), 180);
+});
+
+test('accumulated rotation across a full revolution stays drift-free', () => {
+  // Simulate the needle being driven through every degree 0..360..0 and verify
+  // the accumulated rotation always corresponds to the input heading mod 360.
+  let acc = 0;
+  for (let h = 0; h < 720; h++) {
+    acc += shortestRotationDelta(acc, -h);
+    assert.equal(normalize(-acc), h % 360);
+  }
 });

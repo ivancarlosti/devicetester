@@ -27,6 +27,13 @@
     return { heading: heading, source: absolute ? 'absolute' : 'relative', absolute: absolute };
   }
 
+  // Shortest signed rotation from `from` to `to`, in the range (-180, 180].
+  // Used to keep a continuous rotation accumulator so that wrapping past 0/360
+  // animates the short way (e.g. 359°→1° is +2°, not -358°).
+  function shortestRotationDelta(from, to) {
+    return ((to - from) % 360 + 540) % 360 - 180;
+  }
+
   function getDirection(heading) {
     const h = normalize(heading);
     if (h >= 337.5 || h < 22.5) return 'north';
@@ -39,5 +46,10 @@
     return 'northwest';
   }
 
-  return { normalize: normalize, computeHeading: computeHeading, getDirection: getDirection };
+  return {
+    normalize: normalize,
+    computeHeading: computeHeading,
+    shortestRotationDelta: shortestRotationDelta,
+    getDirection: getDirection
+  };
 });

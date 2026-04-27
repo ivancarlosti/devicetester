@@ -492,6 +492,7 @@
     let compassActive = false;
     let compassDataTimer = null;
     let compassLastAbsoluteAt = 0;
+    let compassRotation = 0;
     const COMPASS_ABSOLUTE_FRESHNESS_MS = 1500;
 
     function setCompassStatus(key, kind) {
@@ -532,6 +533,7 @@
     function attachCompassListeners() {
       compassActive = true;
       compassLastAbsoluteAt = 0;
+      compassRotation = 0;
       setCompassStatus('compass_active', 'success');
 
       // Subscribe to both events. On Chrome Android the property
@@ -555,6 +557,7 @@
       clearTimeout(compassDataTimer);
       compassDataTimer = null;
       compassLastAbsoluteAt = 0;
+      compassRotation = 0;
       window.removeEventListener('deviceorientation', handleCompass);
       window.removeEventListener('deviceorientationabsolute', handleCompass);
       setCompassStatus('compass_waiting');
@@ -583,10 +586,16 @@
       compassDataTimer = null;
 
       const heading = result.heading;
-      // Rotate the needle counter-clockwise relative to compass heading so it
-      // keeps pointing at real-world north as the device turns.
+      // Step the accumulated rotation by the SHORTEST signed delta toward the
+      // new target. Without this, wrapping past 0°/360° would sweep the needle
+      // the long way around (358° in ~0.1s), making it visibly pass through
+      // the opposite cardinal mid-transition.
+      const target = -heading;
+      const delta = window.CompassMath.shortestRotationDelta(compassRotation, target);
+      compassRotation += delta;
+
       document.getElementById('compass-needle').style.transform =
-        `translate(-50%, -100%) rotate(${-heading}deg)`;
+        `translate(-50%, -100%) rotate(${compassRotation}deg)`;
       document.getElementById('compass-heading').textContent = Math.round(heading) + '°';
 
       const dir = window.CompassMath.getDirection(heading);
