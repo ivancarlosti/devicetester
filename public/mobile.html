@@ -490,8 +490,9 @@
 
     // Compass
     let compassActive = false;
-    let compassEventName = null;
     let compassDataTimer = null;
+    let compassLastAbsoluteAt = 0;
+    const COMPASS_ABSOLUTE_FRESHNESS_MS = 1500;
 
     function setCompassStatus(key, kind) {
       const el = document.getElementById('compass-status');
@@ -530,15 +531,17 @@
 
     function attachCompassListeners() {
       compassActive = true;
+      compassLastAbsoluteAt = 0;
       setCompassStatus('compass_active', 'success');
 
-      // Prefer the absolute event when available (Android Chrome).
+      // Subscribe to both events. On Chrome Android the property
+      // `ondeviceorientationabsolute` exists but the event itself does not
+      // always fire reliably, so we also listen to plain `deviceorientation`
+      // and prefer absolute readings in the handler when they're fresh.
+      window.addEventListener('deviceorientation', handleCompass);
       if ('ondeviceorientationabsolute' in window) {
-        compassEventName = 'deviceorientationabsolute';
-      } else {
-        compassEventName = 'deviceorientation';
+        window.addEventListener('deviceorientationabsolute', handleCompass);
       }
-      window.addEventListener(compassEventName, handleCompass);
 
       // If no event arrives within 2s, surface a clear "no data" message.
       clearTimeout(compassDataTimer);
@@ -551,10 +554,9 @@
       compassActive = false;
       clearTimeout(compassDataTimer);
       compassDataTimer = null;
-      if (compassEventName) {
-        window.removeEventListener(compassEventName, handleCompass);
-        compassEventName = null;
-      }
+      compassLastAbsoluteAt = 0;
+      window.removeEventListener('deviceorientation', handleCompass);
+      window.removeEventListener('deviceorientationabsolute', handleCompass);
       setCompassStatus('compass_waiting');
 
       // Reset compass display
@@ -564,15 +566,21 @@
     }
 
     function handleCompass(event) {
-      // First event proves the sensor is alive — cancel the no-data warning.
-      clearTimeout(compassDataTimer);
-      compassDataTimer = null;
-
       const result = window.CompassMath.computeHeading(event);
-      if (!result) {
-        setCompassStatus('compass_no_data', 'warn');
+      if (!result) return; // ignore noise; watchdog will report no-data
+
+      const now = Date.now();
+      if (result.absolute) {
+        compassLastAbsoluteAt = now;
+      } else if (now - compassLastAbsoluteAt < COMPASS_ABSOLUTE_FRESHNESS_MS) {
+        // Absolute readings have been arriving recently — ignore the relative
+        // event so the needle doesn't jitter between two reference frames.
         return;
       }
+
+      // First valid reading proves the sensor is alive — cancel the watchdog.
+      clearTimeout(compassDataTimer);
+      compassDataTimer = null;
 
       const heading = result.heading;
       // Rotate the needle counter-clockwise relative to compass heading so it
