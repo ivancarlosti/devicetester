@@ -142,6 +142,7 @@
 
   </div>
 
+  <script src="compass.js"></script>
   <script>
     // i18n Dictionary
     const dictionary = {
@@ -172,6 +173,10 @@
         compass_waiting: "Status: Waiting...",
         compass_active: "Status: Active",
         compass_unsupported: "Compass not supported on this device.",
+        compass_permission_denied: "Permission denied. Enable Motion & Orientation access in Safari settings.",
+        compass_no_data: "No compass data received. Your device may lack a magnetometer.",
+        compass_relative: "Status: Active (relative — heading is not referenced to true north).",
+        compass_insecure: "Compass requires HTTPS. Open this page over a secure connection.",
         stop: "Stop",
         x_axis: "X Axis:",
         y_axis: "Y Axis:",
@@ -219,6 +224,10 @@
         compass_waiting: "Status: Aguardando...",
         compass_active: "Status: Ativo",
         compass_unsupported: "Bússola não suportada neste dispositivo.",
+        compass_permission_denied: "Permissão negada. Ative o acesso a Movimento e Orientação nas configurações do Safari.",
+        compass_no_data: "Nenhum dado de bússola recebido. Seu dispositivo pode não ter magnetômetro.",
+        compass_relative: "Status: Ativo (relativo — a direção não está referenciada ao norte verdadeiro).",
+        compass_insecure: "A bússola requer HTTPS. Abra esta página em uma conexão segura.",
         stop: "Parar",
         x_axis: "Eixo X:",
         y_axis: "Eixo Y:",
@@ -266,6 +275,10 @@
         compass_waiting: "Estado: Esperando...",
         compass_active: "Estado: Activo",
         compass_unsupported: "Brújula no soportada en este dispositivo.",
+        compass_permission_denied: "Permiso denegado. Activa el acceso a Movimiento y Orientación en los ajustes de Safari.",
+        compass_no_data: "No se recibieron datos de la brújula. Tu dispositivo puede no tener magnetómetro.",
+        compass_relative: "Estado: Activo (relativo — el rumbo no está referenciado al norte verdadero).",
+        compass_insecure: "La brújula requiere HTTPS. Abre esta página en una conexión segura.",
         stop: "Parar",
         x_axis: "Eje X:",
         y_axis: "Eje Y:",
@@ -477,57 +490,108 @@
 
     // Compass
     let compassActive = false;
+    let compassEventName = null;
+    let compassDataTimer = null;
+
+    function setCompassStatus(key, kind) {
+      const el = document.getElementById('compass-status');
+      el.textContent = dictionary[currentLang][key] || key;
+      el.style.color = kind === 'error' ? 'var(--danger)'
+        : kind === 'success' ? 'var(--success)'
+        : kind === 'warn' ? 'var(--primary)'
+        : 'var(--text-color)';
+    }
 
     function startCompass() {
       if (!window.DeviceOrientationEvent) {
-        document.getElementById('compass-status').textContent = dictionary[currentLang].compass_unsupported;
-        document.getElementById('compass-status').style.color = 'var(--danger)';
+        setCompassStatus('compass_unsupported', 'error');
         return;
       }
-      
       if (compassActive) return;
-      
+
+      if (typeof window.isSecureContext === 'boolean' && !window.isSecureContext) {
+        setCompassStatus('compass_insecure', 'error');
+        return;
+      }
+
+      const requestPermission = window.DeviceOrientationEvent.requestPermission;
+      if (typeof requestPermission === 'function') {
+        requestPermission().then(state => {
+          if (state === 'granted') {
+            attachCompassListeners();
+          } else {
+            setCompassStatus('compass_permission_denied', 'error');
+          }
+        }).catch(() => setCompassStatus('compass_permission_denied', 'error'));
+      } else {
+        attachCompassListeners();
+      }
+    }
+
+    function attachCompassListeners() {
       compassActive = true;
-      document.getElementById('compass-status').textContent = dictionary[currentLang].compass_active;
-      document.getElementById('compass-status').style.color = 'var(--success)';
-      
-      window.addEventListener('deviceorientation', handleCompass);
+      setCompassStatus('compass_active', 'success');
+
+      // Prefer the absolute event when available (Android Chrome).
+      if ('ondeviceorientationabsolute' in window) {
+        compassEventName = 'deviceorientationabsolute';
+      } else {
+        compassEventName = 'deviceorientation';
+      }
+      window.addEventListener(compassEventName, handleCompass);
+
+      // If no event arrives within 2s, surface a clear "no data" message.
+      clearTimeout(compassDataTimer);
+      compassDataTimer = setTimeout(() => {
+        if (compassActive) setCompassStatus('compass_no_data', 'warn');
+      }, 2000);
     }
 
     function stopCompass() {
       compassActive = false;
-      window.removeEventListener('deviceorientation', handleCompass);
-      document.getElementById('compass-status').textContent = dictionary[currentLang].compass_waiting;
-      document.getElementById('compass-status').style.color = 'var(--text-color)';
-      
-      // Reset compass
+      clearTimeout(compassDataTimer);
+      compassDataTimer = null;
+      if (compassEventName) {
+        window.removeEventListener(compassEventName, handleCompass);
+        compassEventName = null;
+      }
+      setCompassStatus('compass_waiting');
+
+      // Reset compass display
       document.getElementById('compass-needle').style.transform = 'translate(-50%, -100%) rotate(0deg)';
       document.getElementById('compass-heading').textContent = '0°';
       document.getElementById('compass-direction').textContent = dictionary[currentLang].north;
     }
 
     function handleCompass(event) {
-      const heading = event.alpha || 0; // Compass heading (0-360)
-      
-      // Update needle rotation
-      document.getElementById('compass-needle').style.transform = `translate(-50%, -100%) rotate(${heading}deg)`;
-      document.getElementById('compass-heading').textContent = Math.round(heading) + '°';
-      
-      // Determine direction
-      const dir = getDirection(heading);
-      document.getElementById('compass-direction').textContent = dictionary[currentLang][dir];
-    }
+      // First event proves the sensor is alive — cancel the no-data warning.
+      clearTimeout(compassDataTimer);
+      compassDataTimer = null;
 
-    function getDirection(heading) {
-      if (heading >= 337.5 || heading < 22.5) return 'north';
-      if (heading >= 22.5 && heading < 67.5) return 'northeast';
-      if (heading >= 67.5 && heading < 112.5) return 'east';
-      if (heading >= 112.5 && heading < 157.5) return 'southeast';
-      if (heading >= 157.5 && heading < 202.5) return 'south';
-      if (heading >= 202.5 && heading < 247.5) return 'southwest';
-      if (heading >= 247.5 && heading < 292.5) return 'west';
-      if (heading >= 292.5 && heading < 337.5) return 'northwest';
-      return 'north';
+      const result = window.CompassMath.computeHeading(event);
+      if (!result) {
+        setCompassStatus('compass_no_data', 'warn');
+        return;
+      }
+
+      const heading = result.heading;
+      // Rotate the needle counter-clockwise relative to compass heading so it
+      // keeps pointing at real-world north as the device turns.
+      document.getElementById('compass-needle').style.transform =
+        `translate(-50%, -100%) rotate(${-heading}deg)`;
+      document.getElementById('compass-heading').textContent = Math.round(heading) + '°';
+
+      const dir = window.CompassMath.getDirection(heading);
+      document.getElementById('compass-direction').textContent = dictionary[currentLang][dir];
+
+      if (result.source === 'relative') {
+        setCompassStatus('compass_relative', 'warn');
+      } else {
+        const statusEl = document.getElementById('compass-status');
+        if (statusEl.textContent !== dictionary[currentLang].compass_active) {
+          setCompassStatus('compass_active', 'success');
+        }
+      }
     }
 
     // Cleanup on page unload
